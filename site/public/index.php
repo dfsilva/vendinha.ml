@@ -12,19 +12,19 @@ class Application extends BaseApplication
     /**
      * Register the services here to make them general or register in the ModuleDefinition to make them module-specific
      */
-    protected function registerServices()
+    protected function registerServices(\Phalcon\Config $config = null)
     {
 
         $di = new FactoryDefault();
+        $di->set('config', $config);
 
         $loader = new Loader();
 
         /**
          * We're a registering a set of directories taken from the configuration file
          */
-        $loader
-            ->registerDirs([__DIR__ . '/../apps/library/'])
-            ->register();
+        $loader->registerDirs([__DIR__ . '/../apps/shared/library/',
+                __DIR__ . '/../apps/shared/plugins/'])->register();
 
         // Registering a router
         $di->set('router', function () {
@@ -34,9 +34,9 @@ class Application extends BaseApplication
             $router->setDefaultModule("site");
 
             $router->add('/:controller/:action', [
-                'module'     => 'site',
+                'module' => 'site',
                 'controller' => 1,
-                'action'     => 2,
+                'action' => 2,
             ])->setName('site');
 
 //            $router->add("/login", [
@@ -63,16 +63,18 @@ class Application extends BaseApplication
         $this->setDI($di);
     }
 
-    public function initVariables(){
+    public function initVariables()
+    {
         define('DB_HOST', getenv('DB_HOST'));
         define('DB_USER', getenv('DB_USER'));
         define('DB_PASSWORD', getenv('DB_PASSWORD'));
         define('DB_NAME', getenv('DB_NAME'));
         define('APP_DEBUG', getenv('APP_DEBUG'));
-
+        define('APP_PUBLIC_URL', getenv('APP_PUBLIC_URL'));
     }
 
-    public function main(){
+    public function main()
+    {
         $this->initVariables();
 
         if (APP_DEBUG) {
@@ -80,7 +82,9 @@ class Application extends BaseApplication
             $debug->listen();
         }
 
-        $this->registerServices();
+        $config = include __DIR__ . '../apps/shared/config/conf.php';
+
+        $this->registerServices($config);
 
         // Register the installed modules
         $this->registerModules([
@@ -88,9 +92,9 @@ class Application extends BaseApplication
 //                'className' => 'Vendinha\Api\Module',
 //                'path'      => '../apps/api/Module.php'
 //            ],
-            'site'  => [
+            'site' => [
                 'className' => 'Vendinha\Site\Module',
-                'path'      => '../apps/site/Module.php'
+                'path' => '../apps/site/Module.php'
             ]
         ]);
 

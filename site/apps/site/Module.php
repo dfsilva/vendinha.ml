@@ -38,6 +38,8 @@ class Module implements ModuleDefinitionInterface
      */
     public function registerServices(DiInterface $di)
     {
+        $config = $di->get('config');
+
         // Registering a dispatcher
         $di->set('dispatcher', function () {
             $dispatcher = new Dispatcher();
@@ -49,7 +51,7 @@ class Module implements ModuleDefinitionInterface
             // $eventManager->attach('dispatch', new \My\Awesome\Acl('frontend'));
 
             $dispatcher->setEventsManager($eventManager);
-            $dispatcher->setDefaultNamespace('Vendinha\Site\Controllers\\');
+            $dispatcher->setDefaultNamespace('Vendinha\Site\Controllers');
             return $dispatcher;
         });
 
