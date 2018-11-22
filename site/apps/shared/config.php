@@ -6,10 +6,10 @@ return new Config(
     [
         "database" => [
             "adapter"     => "Mysql",
-            "host"        => "localhost",
-            "username"    => "root",
-            "password"    => "Diego2356",
-            "dbname"      => "vendinha",
+            "host"        => getenv('DB_HOST'),
+            "username"    => getenv('DB_USER'),
+            "password"    => getenv('DB_PASSWORD'),
+            "dbname"      => getenv('DB_NAME'),
         ],
         "application" => [
             "controllersDir" => __DIR__ . "/../../site/controllers/",

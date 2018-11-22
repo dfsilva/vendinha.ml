@@ -34,28 +34,28 @@ class Application extends BaseApplication
             $router->setDefaultModule("site");
 
             $router->add('/:controller/:action', [
-                'module'     => 'frontend',
+                'module'     => 'site',
                 'controller' => 1,
                 'action'     => 2,
-            ])->setName('frontend');
+            ])->setName('site');
 
-            $router->add("/login", [
-                'module'     => 'backend',
-                'controller' => 'login',
-                'action'     => 'index',
-            ])->setName('backend-login');
-
-            $router->add("/admin/products/:action", [
-                'module'     => 'backend',
-                'controller' => 'products',
-                'action'     => 1,
-            ])->setName('backend-product');
-
-            $router->add("/products/:action", [
-                'module'     => 'frontend',
-                'controller' => 'products',
-                'action'     => 1,
-            ])->setName('frontend-product');
+//            $router->add("/login", [
+//                'module'     => 'backend',
+//                'controller' => 'login',
+//                'action'     => 'index',
+//            ])->setName('backend-login');
+//
+//            $router->add("/admin/products/:action", [
+//                'module'     => 'backend',
+//                'controller' => 'products',
+//                'action'     => 1,
+//            ])->setName('backend-product');
+//
+//            $router->add("/products/:action", [
+//                'module'     => 'frontend',
+//                'controller' => 'products',
+//                'action'     => 1,
+//            ])->setName('frontend-product');
 
             return $router;
         });
@@ -63,21 +63,31 @@ class Application extends BaseApplication
         $this->setDI($di);
     }
 
-    public function main()
-    {
+    public function initVariables(){
+        define('DB_HOST', getenv('DB_HOST'));
+        define('DB_USER', getenv('DB_USER'));
+        define('DB_PASSWORD', getenv('DB_PASSWORD'));
+        define('DB_NAME', getenv('DB_NAME'));
+        define('APP_DEBUG', getenv('APP_DEBUG'));
+
+    }
+
+    public function main(){
+        $this->initVariables();
+
+        if (APP_DEBUG) {
+            $debug = new Phalcon\Debug();
+            $debug->listen();
+        }
 
         $this->registerServices();
 
         // Register the installed modules
         $this->registerModules([
-            'shared' => [
-                'className' => 'Vendinha\Shared\Module',
-                'path'      => '../apps/shared/Module.php'
-            ],
-            'api'  => [
-                'className' => 'Vendinha\Api\Module',
-                'path'      => '../apps/api/Module.php'
-            ],
+//            'api'  => [
+//                'className' => 'Vendinha\Api\Module',
+//                'path'      => '../apps/api/Module.php'
+//            ],
             'site'  => [
                 'className' => 'Vendinha\Site\Module',
                 'path'      => '../apps/site/Module.php'

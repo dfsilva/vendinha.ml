@@ -7,12 +7,12 @@
         <script>
             // Initialize Firebase
             var config = {
-                apiKey: "AIzaSyCDexpwdcBfdZbBsT0piHG3EsJc1YtrlGI",
-                authDomain: "vendinhaml.firebaseapp.com",
-                databaseURL: "https://vendinhaml.firebaseio.com",
-                projectId: "vendinhaml",
-                storageBucket: "vendinhaml.appspot.com",
-                messagingSenderId: "549395679035"
+                apiKey: "<?=FIB_API_KEY?>",
+                authDomain: "<?=FIB_AUTH_DOMAIN?>",
+                databaseURL: "<?=FIB_DB_URL?>",
+                projectId: "<?=FIB_PJ_ID?>",
+                storageBucket: "<?=FIB_ST_BUCKET?>",
+                messagingSenderId: "<?=FIB_MSG_SENDER_ID?>"
             };
             firebase.initializeApp(config);
         </script>
