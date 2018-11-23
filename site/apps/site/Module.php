@@ -9,7 +9,7 @@ use Phalcon\Events\Manager;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Mvc\ModuleDefinitionInterface;
-use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
+
 
 class Module implements ModuleDefinitionInterface
 {
@@ -24,7 +24,7 @@ class Module implements ModuleDefinitionInterface
 
         $loader->registerNamespaces(
             [
-                'Vendinha\Site\Controllers' => '../apps/site/controllers/'
+                'Vendinha\Site\Controllers' => __DIR__ . '/controllers/'
             ]
         );
 
@@ -40,65 +40,35 @@ class Module implements ModuleDefinitionInterface
     {
         $config = $di->get('config');
 
-        // Registering a dispatcher
-        $di->set('dispatcher', function () {
+        $di['dispatcher'] = function () {
             $dispatcher = new Dispatcher();
-
-            $eventManager = new Manager();
-
-            // Attach a event listener to the dispatcher (if any)
-            // For example:
-            // $eventManager->attach('dispatch', new \My\Awesome\Acl('frontend'));
-
-            $dispatcher->setEventsManager($eventManager);
             $dispatcher->setDefaultNamespace('Vendinha\Site\Controllers');
             return $dispatcher;
-        });
+        };
 
-        // Registering the view component
-        $di->set(
-            "view",
-            function () use ($config) {
-                $view = new View();
-
-                $view->setViewsDir(
-                    $config->application->viewsDir
-                );
-
-                $view->registerEngines(
-                    [
-                        ".volt" => function ($view, $di) use ($config) {
-                            $volt = new VoltEngine($view, $di);
-
-                            $volt->setOptions(
-                                [
-                                    "compiledPath"      => $config->application->cacheDir,
-                                    "compiledSeparator" => "_",
-                                ]
-                            );
-
-                            return $volt;
-                        },
-
-                        // Generate Template files uses PHP itself as the template engine
-                        ".phtml" => PhpViewEngine::class
-                    ]
-                );
-
-                return $view;
-            },
-            true
+        $di['view']->setViewsDir(
+            __DIR__ . '/views'
         );
 
-        $di->set('db', function () {
-            return new Mysql(
-                [
-                    "host" => "amazon",
-                    "username" => "root",
-                    "password" => "Diego2356",
-                    "dbname" => "vendinha"
-                ]
-            );
-        });
+
+        // Registering the view component
+//        $di->set(
+//            "view",
+//            function () use ($config) {
+//
+//            },
+//            true
+//        );
+
+//        $di->set('db', function () {
+//            return new Mysql(
+//                [
+//                    "host" => "amazon",
+//                    "username" => "root",
+//                    "password" => "Diego2356",
+//                    "dbname" => "vendinha"
+//                ]
+//            );
+//        });
     }
 }

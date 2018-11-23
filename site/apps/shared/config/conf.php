@@ -11,9 +11,9 @@ return new Config(
             "password" => DB_PASSWORD,
             "dbname" => DB_NAME,
             'charset' => 'utf8',
-            'options' => array(
+            'options' => [
                 PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
-            )
+            ]
         ],
         "application" => [
             'baseUri' => '/',
@@ -21,7 +21,7 @@ return new Config(
             'cryptSalt' => 'eEAfR|_&G&f,+vU]:jFr!!A&+71w1Ms9~8_4L!<@[N@DyaIP_2My|:+.u>/6m,$D',
             "pluginsDir" => __DIR__ . "/../../shared/plugins/",
             "libraryDir" => __DIR__ . "/../../shared/library/",
-            "cacheDir" => __DIR__ . "/../../shared/cache/",
+            "cacheDir" => __DIR__ . "/../../cache/",
             "baseUri" => "/",
         ],
     ]

@@ -6,71 +6,27 @@ use Phalcon\Loader;
 use Phalcon\Mvc\Router;
 use Phalcon\DI\FactoryDefault;
 use Phalcon\Mvc\Application as BaseApplication;
+use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
+use Phalcon\Mvc\View\Engine\Php as PhpViewEngine;
 
 class Application extends BaseApplication
 {
-    /**
-     * Register the services here to make them general or register in the ModuleDefinition to make them module-specific
-     */
-    protected function registerServices(\Phalcon\Config $config = null)
-    {
 
-        $di = new FactoryDefault();
-        $di->set('config', $config);
-
-        $loader = new Loader();
-
-        /**
-         * We're a registering a set of directories taken from the configuration file
-         */
-        $loader->registerDirs([__DIR__ . '/../apps/shared/library/',
-                __DIR__ . '/../apps/shared/plugins/'])->register();
-
-        // Registering a router
-        $di->set('router', function () {
-
-            $router = new Router();
-
-            $router->setDefaultModule("site");
-
-            $router->add('/:controller/:action', [
-                'module' => 'site',
-                'controller' => 1,
-                'action' => 2,
-            ])->setName('site');
-
-//            $router->add("/login", [
-//                'module'     => 'backend',
-//                'controller' => 'login',
-//                'action'     => 'index',
-//            ])->setName('backend-login');
-//
-//            $router->add("/admin/products/:action", [
-//                'module'     => 'backend',
-//                'controller' => 'products',
-//                'action'     => 1,
-//            ])->setName('backend-product');
-//
-//            $router->add("/products/:action", [
-//                'module'     => 'frontend',
-//                'controller' => 'products',
-//                'action'     => 1,
-//            ])->setName('frontend-product');
-
-            return $router;
-        });
-
-        $this->setDI($di);
-    }
-
-    public function initVariables()
-    {
+    public function initVariables(){
         define('DB_HOST', getenv('DB_HOST'));
         define('DB_USER', getenv('DB_USER'));
         define('DB_PASSWORD', getenv('DB_PASSWORD'));
         define('DB_NAME', getenv('DB_NAME'));
         define('APP_DEBUG', getenv('APP_DEBUG'));
+        define('APP_ENV', getenv('APP_ENV'));
         define('APP_PUBLIC_URL', getenv('APP_PUBLIC_URL'));
+
+        define('FIB_API_KEY', getenv('FIB_API_KEY'));
+        define('FIB_AUTH_DOMAIN', getenv('FIB_AUTH_DOMAIN'));
+        define('FIB_DB_URL', getenv('FIB_DB_URL'));
+        define('FIB_PJ_ID', getenv('FIB_PJ_ID'));
+        define('FIB_ST_BUCKET', getenv('FIB_ST_BUCKET'));
+        define('FIB_MSG_SENDER_ID', getenv('FIB_MSG_SENDER_ID'));
     }
 
     public function main()
@@ -82,9 +38,66 @@ class Application extends BaseApplication
             $debug->listen();
         }
 
-        $config = include __DIR__ . '../apps/shared/config/conf.php';
+        $config = include __DIR__ . '/../apps/shared/config/conf.php';
 
-        $this->registerServices($config);
+
+        $di = new FactoryDefault();
+        $di->set('config', $config);
+
+
+        $di['router'] = function () {
+
+            $router = new \Phalcon\Mvc\Router(false);
+
+            $router->add('/', [
+                'module' => 'site',
+                'controller' => 'index',
+                'action' => 'index'
+            ]);
+
+            return $router;
+        };
+
+        $view = new Phalcon\Mvc\View();
+
+        $view->setLayoutsDir(__DIR__.'/../apps/layouts/');
+        $view->setPartialsDir(__DIR__.'/../apps/partials/');
+//        $view->setLayout($config->view->defaultLayout); // default layout
+
+        $view->registerEngines(
+            [
+                ".volt" => function ($view, $di) use ($config) {
+                    $volt = new VoltEngine($view, $di);
+                    $volt->setOptions(
+                        [
+                            "compiledPath" => $config->application->cacheDir,
+                            "compiledSeparator" => "_",
+                        ]
+                    );
+                    return $volt;
+                },
+                ".phtml" => PhpViewEngine::class
+            ]
+        );
+
+        $di->set('view', $view);
+
+        $di->set('url', function () {
+            $url = new \Phalcon\Mvc\Url();
+            $url->setBaseUri('/');
+
+            return $url;
+        });
+
+        $di->set('session', function () {
+            $session = new \Phalcon\Session\Adapter\Files();
+            $session->start();
+
+            return $session;
+        });
+
+        $this->setDI($di);
+
 
         // Register the installed modules
         $this->registerModules([
@@ -97,6 +110,7 @@ class Application extends BaseApplication
                 'path' => '../apps/site/Module.php'
             ]
         ]);
+
 
         echo $this->handle()->getContent();
     }

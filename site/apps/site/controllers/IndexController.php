@@ -1,5 +1,7 @@
 <?php
 
+namespace Vendinha\Site\Controllers;
+
 class IndexController extends ControllerBase
 {
     public function indexAction()

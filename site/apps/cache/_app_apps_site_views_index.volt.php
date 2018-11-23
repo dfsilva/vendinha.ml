@@ -8,15 +8,15 @@
 </head>
 <body>
 
-{{ content() }}
+<?= $this->getContent() ?>
 
-{% if constant("APP_ENV") === 'prod' %}
+<?php if (constant('APP_ENV') === 'prod') { ?>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-{% else %}
+<?php } else { ?>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-{% endif %}
+<?php } ?>
 <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
-{{ partial('firebase') }}
+<?= $this->partial('firebase') ?>
 
 
 <script>
