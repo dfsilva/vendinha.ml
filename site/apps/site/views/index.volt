@@ -16,12 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 {% endif %}
 <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
-{{ partial('firebase') }}
-
-
-<script>
-    new Vue({ el: '#app' })
-</script>
+{% include('firebase') %}
 
 </body>
 </html>
