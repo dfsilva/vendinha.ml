@@ -55,6 +55,12 @@ class Application extends BaseApplication
                 'action' => 'index'
             ]);
 
+            $router->add('/test', [
+                'module'     => 'site',
+                'controller' => 'index',
+                'action'     => 'test'
+            ]);
+
             return $router;
         };
 

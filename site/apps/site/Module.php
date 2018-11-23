@@ -50,6 +50,12 @@ class Module implements ModuleDefinitionInterface
             __DIR__ . '/views'
         );
 
+        $di['router']->add('/test', [
+            'module'     => 'site',
+            'controller' => 'index',
+            'action'     => 'test'
+        ]);
+
 
         // Registering the view component
 //        $di->set(
