@@ -12,7 +12,8 @@ use Phalcon\Mvc\View\Engine\Php as PhpViewEngine;
 class Application extends BaseApplication
 {
 
-    public function initVariables(){
+    public function initVariables()
+    {
         define('DB_HOST', getenv('DB_HOST'));
         define('DB_USER', getenv('DB_USER'));
         define('DB_PASSWORD', getenv('DB_PASSWORD'));
@@ -44,10 +45,21 @@ class Application extends BaseApplication
         $di = new FactoryDefault();
         $di->set('config', $config);
 
+        $this->registerModules([
+//            'api'  => [
+//                'className' => 'Vendinha\Api\Module',
+//                'path'      => '../apps/api/Module.php'
+//            ],
+            'site' => [
+                'className' => 'Vendinha\Site\Module',
+                'path' => __DIR__ . '/../apps/site/Module.php'
+            ]
+        ]);
+
 
         $di['router'] = function () {
 
-            $router = new \Phalcon\Mvc\Router(false);
+            $router = new \Phalcon\Mvc\Router();
 
             $router->add('/', [
                 'module' => 'site',
@@ -56,9 +68,9 @@ class Application extends BaseApplication
             ]);
 
             $router->add('/test', [
-                'module'     => 'site',
+                'module' => 'site',
                 'controller' => 'index',
-                'action'     => 'test'
+                'action' => 'test'
             ]);
 
             return $router;
@@ -66,8 +78,8 @@ class Application extends BaseApplication
 
         $view = new Phalcon\Mvc\View();
 
-        $view->setLayoutsDir(__DIR__.'/../apps/layouts/');
-        $view->setPartialsDir(__DIR__.'/../apps/partials/');
+        $view->setLayoutsDir(__DIR__ . '/../apps/layouts/');
+        $view->setPartialsDir(__DIR__ . '/../apps/partials/');
 //        $view->setLayout($config->view->defaultLayout); // default layout
 
         $view->registerEngines(
@@ -91,9 +103,10 @@ class Application extends BaseApplication
         $di->set('url', function () {
             $url = new \Phalcon\Mvc\Url();
             $url->setBaseUri('/');
+            $url->setBasePath('/');
 
             return $url;
-        });
+        }, true);
 
         $di->set('session', function () {
             $session = new \Phalcon\Session\Adapter\Files();
@@ -103,19 +116,6 @@ class Application extends BaseApplication
         });
 
         $this->setDI($di);
-
-
-        // Register the installed modules
-        $this->registerModules([
-//            'api'  => [
-//                'className' => 'Vendinha\Api\Module',
-//                'path'      => '../apps/api/Module.php'
-//            ],
-            'site' => [
-                'className' => 'Vendinha\Site\Module',
-                'path' => '../apps/site/Module.php'
-            ]
-        ]);
 
 
         echo $this->handle()->getContent();

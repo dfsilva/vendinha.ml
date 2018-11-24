@@ -13,11 +13,6 @@ use Phalcon\Mvc\ModuleDefinitionInterface;
 
 class Module implements ModuleDefinitionInterface
 {
-    /**
-     * Registers the module auto-loader
-     *
-     * @param DiInterface $di
-     */
     public function registerAutoloaders(DiInterface $di = null)
     {
         $loader = new Loader();
@@ -31,11 +26,7 @@ class Module implements ModuleDefinitionInterface
         $loader->register();
     }
 
-    /**
-     * Registers services related to the module
-     *
-     * @param DiInterface $di
-     */
+
     public function registerServices(DiInterface $di)
     {
         $config = $di->get('config');
@@ -51,20 +42,10 @@ class Module implements ModuleDefinitionInterface
         );
 
         $di['router']->add('/test', [
-            'module'     => 'site',
+            'module' => 'site',
             'controller' => 'index',
-            'action'     => 'test'
+            'action' => 'test'
         ]);
-
-
-        // Registering the view component
-//        $di->set(
-//            "view",
-//            function () use ($config) {
-//
-//            },
-//            true
-//        );
 
 //        $di->set('db', function () {
 //            return new Mysql(
