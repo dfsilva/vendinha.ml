@@ -8,3 +8,5 @@
         </v-content>
     </v-app>
 </div>
+
+{% set templateAfter = 'index/index_after' %}
