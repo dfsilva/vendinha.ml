@@ -19,7 +19,6 @@
 {% endif %}
 <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
 
-
 {% block footer %}{% endblock %}
 
 </body>

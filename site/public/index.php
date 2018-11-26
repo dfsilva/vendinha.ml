@@ -115,8 +115,20 @@ class Application extends BaseApplication
             return $session;
         });
 
-        $this->setDI($di);
 
+//        $assetsManager = new Phalcon\Assets\Manager();
+//        $assetsManager->collection('jsSiteBase')
+//            ->setTargetPath('jsSiteBase.js')
+//            ->setTargetUri('assets/jsSiteBase.js')
+//            ->addJs(APP_ENV == 'prod' ? 'https://cdn.jsdelivr.net/npm/vue' : 'https://cdn.jsdelivr.net/npm/vue/dist/vue.js', false, true)
+//            ->addJs('https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js', false, true)
+//            ->join(true)
+//            ->addFilter(new Phalcon\Assets\Filters\Jsmin());
+//
+//        $di->set('assets', $assetsManager);
+
+
+        $this->setDI($di);
 
         echo $this->handle()->getContent();
     }
