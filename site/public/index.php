@@ -2,12 +2,14 @@
 
 error_reporting(E_ALL);
 
-use Phalcon\Loader;
-use Phalcon\Mvc\Router;
 use Phalcon\DI\FactoryDefault;
+use Phalcon\Mvc\Dispatcher;
+use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Mvc\Application as BaseApplication;
 use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Mvc\View\Engine\Php as PhpViewEngine;
+use Phalcon\Loader;
+
 
 class Application extends BaseApplication
 {
@@ -41,18 +43,23 @@ class Application extends BaseApplication
 
         $config = include __DIR__ . '/../apps/shared/config/conf.php';
 
+//        $loader = new Loader();
+//        $loader
+//            ->registerDirs([__DIR__ . '/../apps/shared/constants', __DIR__ . '/../apps/shared/plugins'])
+//            ->register();
+
 
         $di = new FactoryDefault();
         $di->set('config', $config);
 
         $this->registerModules([
-//            'api'  => [
-//                'className' => 'Vendinha\Api\Module',
-//                'path'      => '../apps/api/Module.php'
-//            ],
             'site' => [
                 'className' => 'Vendinha\Site\Module',
                 'path' => __DIR__ . '/../apps/site/Module.php'
+            ],
+            'api' => [
+                'className' => 'Vendinha\Api\Module',
+                'path' => __DIR__ . '/../apps/api/Module.php'
             ]
         ]);
 
@@ -60,6 +67,7 @@ class Application extends BaseApplication
         $di['router'] = function () {
 
             $router = new \Phalcon\Mvc\Router();
+            $router->setDefaultModule("site");
 
             $router->add('/', [
                 'module' => 'site',
@@ -73,32 +81,18 @@ class Application extends BaseApplication
                 'action' => 'test'
             ]);
 
+
+            //api
+            $router->add('/api/test', [
+                'module' => 'api',
+                'controller' => 'api',
+                'action' => 'test'
+            ]);
+
             return $router;
         };
 
-        $view = new Phalcon\Mvc\View();
 
-        $view->setLayoutsDir(__DIR__ . '/../apps/layouts/');
-        $view->setPartialsDir(__DIR__ . '/../apps/partials/');
-//        $view->setLayout($config->view->defaultLayout); // default layout
-
-        $view->registerEngines(
-            [
-                ".volt" => function ($view, $di) use ($config) {
-                    $volt = new VoltEngine($view, $di);
-                    $volt->setOptions(
-                        [
-                            "compiledPath" => $config->application->cacheDir,
-                            "compiledSeparator" => "_",
-                        ]
-                    );
-                    return $volt;
-                },
-                ".phtml" => PhpViewEngine::class
-            ]
-        );
-
-        $di->set('view', $view);
 
         $di->set('url', function () {
             $url = new \Phalcon\Mvc\Url();
@@ -111,7 +105,6 @@ class Application extends BaseApplication
         $di->set('session', function () {
             $session = new \Phalcon\Session\Adapter\Files();
             $session->start();
-
             return $session;
         });
 
@@ -128,8 +121,15 @@ class Application extends BaseApplication
 //        $di->set('assets', $assetsManager);
 
 
-        $this->setDI($di);
+//
+//        $eventsManager = new EventsManager;
+//        $eventsManager->attach('dispatch:beforeException', new \NotFoundPlugin);
+//        $dispatcher = new Dispatcher;
+//        $dispatcher->setEventsManager($eventsManager);
+//
+//        $di->setShared('dispatcher', $dispatcher);
 
+        $this->setDI($di);
         echo $this->handle()->getContent();
     }
 }

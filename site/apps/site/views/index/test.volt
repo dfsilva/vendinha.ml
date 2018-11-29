@@ -9,4 +9,4 @@
     </v-app>
 </div>
 
-{% set templateAfter = 'index/index_after' %}
+{% set templateAfter = 'index/js_after' %}

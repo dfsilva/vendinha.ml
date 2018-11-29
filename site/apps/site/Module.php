@@ -4,11 +4,14 @@ namespace Vendinha\Site;
 
 use Phalcon\Loader;
 use Phalcon\Mvc\View;
+use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
+use Phalcon\Mvc\View\Engine\Php as PhpViewEngine;
 use Phalcon\DiInterface;
-use Phalcon\Events\Manager;
-use Phalcon\Mvc\Dispatcher;
+use Phalcon\Events\Manager as EventsManager;
+use Phalcon\Mvc\Dispatcher as MvcDispatcher;
 use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Mvc\ModuleDefinitionInterface;
+use Vendinha\Site\Plugins\NotFoundPlugin;
 
 
 class Module implements ModuleDefinitionInterface
@@ -19,7 +22,8 @@ class Module implements ModuleDefinitionInterface
 
         $loader->registerNamespaces(
             [
-                'Vendinha\Site\Controllers' => __DIR__ . '/controllers/'
+                'Vendinha\Site\Controllers' => __DIR__ . '/controllers/',
+                'Vendinha\Site\Plugins' => __DIR__ . '/plugins/'
             ]
         );
 
@@ -31,21 +35,46 @@ class Module implements ModuleDefinitionInterface
     {
         $config = $di->get('config');
 
-        $di['dispatcher'] = function () {
-            $dispatcher = new Dispatcher();
+        $di->set('dispatcher', function () {
+            $dispatcher = new MvcDispatcher();
+            $eventsManager = new EventsManager;
+            $eventsManager->attach('dispatch:beforeException', new NotFoundPlugin);
+            $dispatcher->setEventsManager($eventsManager);
             $dispatcher->setDefaultNamespace('Vendinha\Site\Controllers');
             return $dispatcher;
-        };
+        });
 
-        $di['view']->setViewsDir(
+        $view = new View;
+
+        $view->setLayoutsDir(__DIR__ . '/../../apps/layouts/');
+        $view->setPartialsDir(__DIR__ . '/../../apps/partials/');
+        //        $view->setLayout($config->view->defaultLayout); // default layout
+        $view->setViewsDir(
             __DIR__ . '/views'
         );
 
-        $di['router']->add('/test', [
-            'module' => 'site',
-            'controller' => 'index',
-            'action' => 'test'
-        ]);
+        $view->registerEngines(
+            [
+                ".volt" => function ($view, $di) use ($config) {
+                    $volt = new VoltEngine($view, $di);
+                    $volt->setOptions(
+                        [
+                            "compiledPath" => $config->application->cacheDir,
+                            "compiledSeparator" => "_",
+                        ]
+                    );
+                    return $volt;
+                },
+                ".phtml" => PhpViewEngine::class
+            ]
+        );
+
+        $di->set('view', $view);
+
+//        $di['view']->setViewsDir(
+//            __DIR__ . '/views'
+//        );
+
 
 //        $di->set('db', function () {
 //            return new Mysql(
