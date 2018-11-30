@@ -32,6 +32,7 @@ class Module implements ModuleDefinitionInterface {
 //        $security = new \all\plugins\ApiSecurity($di);
 //        $dispatcher->getEventsManager()->attach('dispatch', $security);
 //        $di->set('dispatcher', $dispatcher);
+        $di['log']->info('Module Api');
 
         $di->set('dispatcher', function () {
             $dispatcher = new MvcDispatcher();
@@ -41,6 +42,13 @@ class Module implements ModuleDefinitionInterface {
             $dispatcher->setDefaultNamespace('Vendinha\Api\Controllers');
             return $dispatcher;
         });
+
+
+//        $dispatcher = $di->get('dispatcher');
+//        $dispatcher->setDefaultNamespace("Vendinha\Api\Controllers");
+//        $dispatcher->getEventsManager()->attach('dispatch:beforeException', new NotFoundPlugin);
+//        $di->set('dispatcher', $dispatcher);
+
 
         $view = new View;
         $view->disable();

@@ -1,7 +1,5 @@
 <?php
 
-namespace Vendinha\Site\Plugins;
-
 use Phalcon\Events\Event;
 use Phalcon\Mvc\User\Plugin;
 use Phalcon\Dispatcher;
@@ -27,28 +25,32 @@ class NotFoundPlugin extends Plugin
 	{
 //		error_log($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
 
-        $this->getDI()->get('log')->info('beforeException Site '.$dispatcher->getModuleName());
+        $logger = $this->getDI()->get('log');
+
+        $logger->info('beforeException Shared '.$dispatcher->getModuleName());
 
 		if ($exception instanceof DispatcherException) {
 			switch ($exception->getCode()) {
 				case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
 				case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
+                $logger->info('notFound ');
 					$dispatcher->forward(
 						[
+						    'module' => 'site',
 							'controller' => 'error',
-							'action'     => 'notFound',
-                            'namespace' => 'Vendinha\Site\Controllers'
+							'action'     => 'notFound'
 						]
 					);
 					return false;
 			}
 		}
 
+        $logger->info('genericError ');
 		$dispatcher->forward(
 			[
+                'module' => 'site',
 				'controller' => 'error',
 				'action'     => 'genericError',
-                'namespace'  => 'Vendinha\Site\Controllers'
 			]
 		);
 

@@ -3,12 +3,15 @@
 error_reporting(E_ALL);
 
 use Phalcon\DI\FactoryDefault;
-use Phalcon\Mvc\Dispatcher;
-use Phalcon\Events\Manager as EventsManager;
+use Phalcon\Mvc\View;
 use Phalcon\Mvc\Application as BaseApplication;
 use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Mvc\View\Engine\Php as PhpViewEngine;
 use Phalcon\Loader;
+use Phalcon\Logger;
+use Phalcon\Logger\Adapter\File as FileAdapter;
+use Phalcon\Events\Manager as EventsManager;
+use Phalcon\Mvc\Dispatcher as MvcDispatcher;
 
 
 class Application extends BaseApplication
@@ -43,10 +46,11 @@ class Application extends BaseApplication
 
         $config = include __DIR__ . '/../apps/shared/config/conf.php';
 
-//        $loader = new Loader();
-//        $loader
-//            ->registerDirs([__DIR__ . '/../apps/shared/constants', __DIR__ . '/../apps/shared/plugins'])
-//            ->register();
+        $loader = new Loader();
+        $loader->registerDirs([
+            __DIR__ . '/../apps/shared/constants',
+            __DIR__ . '/../apps/shared/plugins'
+        ])->register();
 
 
         $di = new FactoryDefault();
@@ -67,7 +71,7 @@ class Application extends BaseApplication
         $di['router'] = function () {
 
             $router = new \Phalcon\Mvc\Router();
-            $router->setDefaultModule("site");
+//            $router->setDefaultModule("site");
 
             $router->add('/', [
                 'module' => 'site',
@@ -81,7 +85,6 @@ class Application extends BaseApplication
                 'action' => 'test'
             ]);
 
-
             //api
             $router->add('/api/test', [
                 'module' => 'api',
@@ -93,6 +96,16 @@ class Application extends BaseApplication
         };
 
 
+        $di->set('dispatcher', function () {
+            $dispatcher = new MvcDispatcher();
+            $eventsManager = new EventsManager;
+            $eventsManager->attach('dispatch:beforeException', new \NotFoundPlugin);
+            $dispatcher->setEventsManager($eventsManager);
+            return $dispatcher;
+        });
+
+        $view = new View;
+        $di->set('view', $view);
 
         $di->set('url', function () {
             $url = new \Phalcon\Mvc\Url();
@@ -106,6 +119,16 @@ class Application extends BaseApplication
             $session = new \Phalcon\Session\Adapter\Files();
             $session->start();
             return $session;
+        });
+
+        $di->set('log', function () {
+            $logger = new FileAdapter(__DIR__ . "/../apps/logs/app.log", ['mode' => 'w']);
+            if (APP_DEBUG) {
+                $logger->setLogLevel(Logger::DEBUG);
+            } else {
+                $logger->setLogLevel(Logger::ERROR);
+            }
+            return $logger;
         });
 
 

@@ -35,6 +35,8 @@ class Module implements ModuleDefinitionInterface
     {
         $config = $di->get('config');
 
+        $di['log']->info('Module Site');
+
         $di->set('dispatcher', function () {
             $dispatcher = new MvcDispatcher();
             $eventsManager = new EventsManager;
@@ -70,10 +72,6 @@ class Module implements ModuleDefinitionInterface
         );
 
         $di->set('view', $view);
-
-//        $di['view']->setViewsDir(
-//            __DIR__ . '/views'
-//        );
 
 
 //        $di->set('db', function () {

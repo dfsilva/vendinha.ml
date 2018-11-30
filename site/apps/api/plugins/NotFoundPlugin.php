@@ -27,6 +27,9 @@ class NotFoundPlugin extends Plugin
 	{
 //		error_log($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
 
+        $this->getDI()->get('log')->info('beforeException API');
+
+
 		if ($exception instanceof DispatcherException) {
 			switch ($exception->getCode()) {
 				case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
