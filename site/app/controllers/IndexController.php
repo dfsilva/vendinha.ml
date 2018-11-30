@@ -1,7 +1,5 @@
 <?php
 
-namespace Vendinha\Site\Controllers;
-
 class IndexController extends ControllerBase
 {
     public function indexAction()
@@ -13,6 +11,8 @@ class IndexController extends ControllerBase
 
     public function testAction()
     {
+
+        $this->getDI()->get('log')->info('Index Action ');
         $this->view->hello = "hey, hello!";
     }
 }

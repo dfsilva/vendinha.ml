@@ -19,9 +19,6 @@ return new Config(
             'baseUri' => '/',
             'publicUrl' => APP_PUBLIC_URL,
             'cryptSalt' => 'eEAfR|_&G&f,+vU]:jFr!!A&+71w1Ms9~8_4L!<@[N@DyaIP_2My|:+.u>/6m,$D',
-            "pluginsDir" => __DIR__ . "/../../shared/plugins/",
-            "libraryDir" => __DIR__ . "/../../shared/library/",
-            "cacheDir" => __DIR__ . "/../../cache/",
             "baseUri" => "/",
         ],
     ]

@@ -1,7 +1,5 @@
 <?php
 
-namespace Vendinha\Site\Controllers;
-
 
 class ErrorController extends \Phalcon\Mvc\Controller {
 

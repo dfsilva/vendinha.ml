@@ -44,68 +44,37 @@ class Application extends BaseApplication
             $debug->listen();
         }
 
-        $config = include __DIR__ . '/../apps/shared/config/conf.php';
+        $config = include __DIR__ . '/../app/config/conf.php';
 
         $loader = new Loader();
+
         $loader->registerDirs([
-            __DIR__ . '/../apps/shared/constants',
-            __DIR__ . '/../apps/shared/plugins'
+            __DIR__ . '/../app/controllers',
+            __DIR__ . '/../app/plugins'
         ])->register();
 
 
         $di = new FactoryDefault();
-        $di->set('config', $config);
-
-        $this->registerModules([
-            'site' => [
-                'className' => 'Vendinha\Site\Module',
-                'path' => __DIR__ . '/../apps/site/Module.php'
-            ],
-            'api' => [
-                'className' => 'Vendinha\Api\Module',
-                'path' => __DIR__ . '/../apps/api/Module.php'
-            ]
-        ]);
+        $di->set('config', $config, true);
 
 
         $di['router'] = function () {
 
             $router = new \Phalcon\Mvc\Router();
-//            $router->setDefaultModule("site");
 
             $router->add('/', [
-                'module' => 'site',
                 'controller' => 'index',
                 'action' => 'index'
             ]);
 
             $router->add('/test', [
-                'module' => 'site',
                 'controller' => 'index',
-                'action' => 'test'
-            ]);
-
-            //api
-            $router->add('/api/test', [
-                'module' => 'api',
-                'controller' => 'api',
                 'action' => 'test'
             ]);
 
             return $router;
         };
 
-
-        $di->set('dispatcher', function () {
-            $dispatcher = new MvcDispatcher();
-            $eventsManager = new EventsManager;
-            $eventsManager->attach('dispatch:beforeException', new \NotFoundPlugin);
-            $dispatcher->setEventsManager($eventsManager);
-            return $dispatcher;
-        });
-
-        $view = new View;
-        $di->set('view', $view);
 
         $di->set('url', function () {
             $url = new \Phalcon\Mvc\Url();
@@ -115,14 +84,57 @@ class Application extends BaseApplication
             return $url;
         }, true);
 
+        $di->set(
+            "view",
+            function () use ($config) {
+                $view = new View();
+
+                $view->setViewsDir(
+                    __DIR__ . '/../app/views'
+                );
+
+                $view->setPartialsDir(__DIR__ . '/../app/partials/');
+
+                $view->registerEngines(
+                    [
+                        ".volt" => function ($view, $di) use ($config) {
+                            $volt = new VoltEngine($view, $di);
+
+                            $volt->setOptions(
+                                [
+                                    "compiledPath"      => __DIR__.'/../app/cache/',
+                                    "compiledSeparator" => "_",
+                                ]
+                            );
+
+                            return $volt;
+                        },
+                        ".phtml" => PhpViewEngine::class
+                    ]
+                );
+                return $view;
+            },
+            true
+        );
+
+        $di->set('dispatcher', function () {
+            $dispatcher = new MvcDispatcher();
+            $eventsManager = new EventsManager;
+            $eventsManager->attach('dispatch:beforeException', new \NotFoundPlugin);
+            $dispatcher->setEventsManager($eventsManager);
+            return $dispatcher;
+        }, true);
+
+
         $di->set('session', function () {
             $session = new \Phalcon\Session\Adapter\Files();
             $session->start();
             return $session;
         });
 
+
         $di->set('log', function () {
-            $logger = new FileAdapter(__DIR__ . "/../apps/logs/app.log", ['mode' => 'w']);
+            $logger = new FileAdapter(__DIR__ . "/../app/logs/app.log", ['mode' => 'w']);
             if (APP_DEBUG) {
                 $logger->setLogLevel(Logger::DEBUG);
             } else {

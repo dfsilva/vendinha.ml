@@ -1,4 +1,4 @@
-{% extends 'layouts/base_tpl.volt' %}
+{% extends 'templates/base_tpl.volt' %}
 
 {% block title %}Vendinha{% endblock %}
 

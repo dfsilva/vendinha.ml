@@ -1,7 +1,5 @@
 <?php
 
-namespace Vendinha\Site\Plugins;
-
 use Phalcon\Events\Event;
 use Phalcon\Mvc\User\Plugin;
 use Phalcon\Dispatcher;
@@ -36,8 +34,7 @@ class NotFoundPlugin extends Plugin
 					$dispatcher->forward(
 						[
 							'controller' => 'error',
-							'action'     => 'notFound',
-                            'namespace' => 'Vendinha\Site\Controllers'
+							'action'     => 'notFound'
 						]
 					);
 					return false;
@@ -47,8 +44,7 @@ class NotFoundPlugin extends Plugin
 		$dispatcher->forward(
 			[
 				'controller' => 'error',
-				'action'     => 'genericError',
-                'namespace'  => 'Vendinha\Site\Controllers'
+				'action'     => 'genericError'
 			]
 		);
 
