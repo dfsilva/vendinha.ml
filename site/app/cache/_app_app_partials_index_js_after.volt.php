@@ -4,7 +4,7 @@
         data() {
             return {
                 title: 'Vendinha.ml',
-                lat: '',
+                lat: '1111',
                 lon: '',
                 message: {
                     text: '',
@@ -14,9 +14,8 @@
             }
         },
         mounted: function(){
-          // console.log('mountent');
+          console.log('mountent');
           // console.log(app.$vuetify.breakpoint);
-            this.searchLocationByIp();
         },
         methods: {
             setLocation: function () {
