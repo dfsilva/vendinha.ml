@@ -1,31 +1,50 @@
 <div id="app">
     <v-app light>
-        <v-toolbar class="white">
+
+        <v-toolbar dark color="primary">
+            <v-toolbar-side-icon></v-toolbar-side-icon>
             <v-toolbar-title v-text="title"></v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items class="hidden-sm-and-down">
+                <v-btn flat>Entrar <a v-text="lat"></a> <a v-text="lon"></a></v-btn>
+            </v-toolbar-items>
         </v-toolbar>
+
+
         <v-content>
             <section>
-                <v-parallax src="{{url('assets/hero.jpeg')}}" height="600">
-                    <v-layout
-                            column
-                            align-center
-                            justify-center
-                            class="white--text"
+                <v-layout
+                        height="600"
+                        column
+                        align-center
+                        justify-center>
+
+                    <v-toolbar
+                            dense
+                            v-bind:style="{width: ($vuetify.breakpoint.smAndDown ? '80%' : '40%'), marginTop:'20px'}"
                     >
-                        <img src="{{url('assets/vuetify.png')}}" alt="Vuetify.js" height="200">
-                        <h1 class="white--text mb-2 display-1 text-xs-center">Parallax Template</h1>
-                        <div class="subheading mb-3 text-xs-center">Powered by Vuetify</div>
-                        <v-btn
-                                class="blue lighten-2 mt-5"
-                                dark
-                                large
-                                href="/pre-made-themes"
-                        >
-                            Get Started
+                        <v-btn icon>
+                            <v-icon>search</v-icon>
                         </v-btn>
-                    </v-layout>
-                </v-parallax>
+
+                        <v-text-field
+                                hide-details
+                                single-line
+                                clearable
+                        ></v-text-field>
+
+                        <v-btn icon>
+                            <v-icon>my_location</v-icon>
+                        </v-btn>
+
+                        <v-btn icon>
+                            <v-icon>more_vert</v-icon>
+                        </v-btn>
+                    </v-toolbar>
+
+                </v-layout>
             </section>
+
 
             <section>
                 <v-layout
@@ -46,48 +65,68 @@
                         <v-container grid-list-xl>
                             <v-layout row wrap align-center>
                                 <v-flex xs12 md4>
-                                    <v-card class="elevation-0 transparent">
-                                        <v-card-text class="text-xs-center">
-                                            <v-icon x-large class="blue--text text--lighten-2">color_lens</v-icon>
-                                        </v-card-text>
-                                        <v-card-title primary-title class="layout justify-center">
-                                            <div class="headline text-xs-center">Material Design</div>
+                                    <v-card>
+                                        <v-img
+                                                src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+                                                aspect-ratio="2.75"></v-img>
+
+                                        <v-card-title primary-title>
+                                            <div>
+                                                <h3 class="headline mb-0">Kangaroo Valley Safari</h3>
+                                                <div>Located two hours south of Sydney in the <br>Southern Highlands of
+                                                    New South Wales, ...
+                                                </div>
+                                            </div>
                                         </v-card-title>
-                                        <v-card-text>
-                                            Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                            Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                            Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
-                                        </v-card-text>
+
+                                        <v-card-actions>
+                                            <v-btn flat color="orange">Share</v-btn>
+                                            <v-btn flat color="orange">Explore</v-btn>
+                                        </v-card-actions>
                                     </v-card>
                                 </v-flex>
                                 <v-flex xs12 md4>
-                                    <v-card class="elevation-0 transparent">
-                                        <v-card-text class="text-xs-center">
-                                            <v-icon x-large class="blue--text text--lighten-2">flash_on</v-icon>
-                                        </v-card-text>
-                                        <v-card-title primary-title class="layout justify-center">
-                                            <div class="headline">Fast development</div>
+                                    <v-card>
+                                        <v-img
+                                                src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+                                                aspect-ratio="2.75"
+                                        ></v-img>
+
+                                        <v-card-title primary-title>
+                                            <div>
+                                                <h3 class="headline mb-0">Kangaroo Valley Safari</h3>
+                                                <div>Located two hours south of Sydney in the <br>Southern Highlands of
+                                                    New South Wales, ...
+                                                </div>
+                                            </div>
                                         </v-card-title>
-                                        <v-card-text>
-                                            Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                            Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                            Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
-                                        </v-card-text>
+
+                                        <v-card-actions>
+                                            <v-btn flat color="orange">Share</v-btn>
+                                            <v-btn flat color="orange">Explore</v-btn>
+                                        </v-card-actions>
                                     </v-card>
                                 </v-flex>
                                 <v-flex xs12 md4>
-                                    <v-card class="elevation-0 transparent">
-                                        <v-card-text class="text-xs-center">
-                                            <v-icon x-large class="blue--text text--lighten-2">build</v-icon>
-                                        </v-card-text>
-                                        <v-card-title primary-title class="layout justify-center">
-                                            <div class="headline text-xs-center">Completely Open Sourced</div>
+                                    <v-card>
+                                        <v-img
+                                                src="https://cdn.vuetifyjs.com/images/cards/desert.jpg"
+                                                aspect-ratio="2.75"
+                                        ></v-img>
+
+                                        <v-card-title primary-title>
+                                            <div>
+                                                <h3 class="headline mb-0">Kangaroo Valley Safari</h3>
+                                                <div>Located two hours south of Sydney in the <br>Southern Highlands of
+                                                    New South Wales, ...
+                                                </div>
+                                            </div>
                                         </v-card-title>
-                                        <v-card-text>
-                                            Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                            Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                            Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
-                                        </v-card-text>
+
+                                        <v-card-actions>
+                                            <v-btn flat color="orange">Share</v-btn>
+                                            <v-btn flat color="orange">Explore</v-btn>
+                                        </v-card-actions>
                                     </v-card>
                                 </v-flex>
                             </v-layout>
@@ -96,90 +135,6 @@
                 </v-layout>
             </section>
 
-            <section>
-                <v-parallax src="{{url('assets/section.jpg')}}" height="380">
-                    <v-layout column align-center justify-center>
-                        <div class="headline white--text mb-3 text-xs-center">Web development has never been easier</div>
-                        <em>Kick-start your application today</em>
-                        <v-btn
-                                class="blue lighten-2 mt-5"
-                                dark
-                                large
-                                href="/pre-made-themes"
-                        >
-                            Get Started
-                        </v-btn>
-                    </v-layout>
-                </v-parallax>
-            </section>
-
-            <section>
-                <v-container grid-list-xl>
-                    <v-layout row wrap justify-center class="my-5">
-                        <v-flex xs12 sm4>
-                            <v-card class="elevation-0 transparent">
-                                <v-card-title primary-title class="layout justify-center">
-                                    <div class="headline">Company info</div>
-                                </v-card-title>
-                                <v-card-text>
-                                    Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                    Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-                                    Nullam in aliquet odio. Aliquam eu est vitae tellus bibendum tincidunt. Suspendisse potenti.
-                                </v-card-text>
-                            </v-card>
-                        </v-flex>
-                        <v-flex xs12 sm4 offset-sm1>
-                            <v-card class="elevation-0 transparent">
-                                <v-card-title primary-title class="layout justify-center">
-                                    <div class="headline">Contact us</div>
-                                </v-card-title>
-                                <v-card-text>
-                                    Cras facilisis mi vitae nunc lobortis pharetra. Nulla volutpat tincidunt ornare.
-                                </v-card-text>
-                                <v-list class="transparent">
-                                    <v-list-tile>
-                                        <v-list-tile-action>
-                                            <v-icon class="blue--text text--lighten-2">phone</v-icon>
-                                        </v-list-tile-action>
-                                        <v-list-tile-content>
-                                            <v-list-tile-title>777-867-5309</v-list-tile-title>
-                                        </v-list-tile-content>
-                                    </v-list-tile>
-                                    <v-list-tile>
-                                        <v-list-tile-action>
-                                            <v-icon class="blue--text text--lighten-2">place</v-icon>
-                                        </v-list-tile-action>
-                                        <v-list-tile-content>
-                                            <v-list-tile-title>Chicago, US</v-list-tile-title>
-                                        </v-list-tile-content>
-                                    </v-list-tile>
-                                    <v-list-tile>
-                                        <v-list-tile-action>
-                                            <v-icon class="blue--text text--lighten-2">email</v-icon>
-                                        </v-list-tile-action>
-                                        <v-list-tile-content>
-                                            <v-list-tile-title>john@vuetifyjs.com</v-list-tile-title>
-                                        </v-list-tile-content>
-                                    </v-list-tile>
-                                </v-list>
-                            </v-card>
-                        </v-flex>
-                    </v-layout>
-                </v-container>
-            </section>
-
-            <v-footer class="blue darken-2">
-                <v-layout row wrap align-center>
-                    <v-flex xs12>
-                        <div class="white--text ml-3">
-                            Made with
-                            <v-icon class="red--text">favorite</v-icon>
-                            by <a class="white--text" href="https://vuetifyjs.com" target="_blank">Vuetify</a>
-                            and <a class="white--text" href="https://github.com/vwxyzjn">Costa Huang</a>
-                        </div>
-                    </v-flex>
-                </v-layout>
-            </v-footer>
         </v-content>
     </v-app>
 </div>
