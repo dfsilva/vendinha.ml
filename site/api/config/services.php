@@ -1,6 +1,7 @@
 <?php
 
 use Phalcon\DI\FactoryDefault;
+use Phalcon\Events\Manager;
 use Phalcon\Mvc\View\Simple as View;
 use Phalcon\Mvc\Url as UrlResolver;
 use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
@@ -28,6 +29,17 @@ define('FIB_MSG_SENDER_ID', getenv('FIB_MSG_SENDER_ID'));
  * The FactoryDefault Dependency Injector automatically register the right services providing a full stack framework
  */
 $di = new FactoryDefault();
+
+$loader = new \Phalcon\Loader();
+$loader->registerDirs(
+    array(
+        __DIR__ . '/../utils/',
+        __DIR__ . '/../middleware/'
+    )
+)->register();
+
+$eventsManager = new Manager();
+$eventsManager->attach('micro', new CORSMiddleware());
 
 $di->set('log', function () {
     $logger = new FileAdapter(__DIR__ . "/../logs/api.log", ['mode' => 'w']);

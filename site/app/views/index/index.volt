@@ -1,4 +1,4 @@
-<div id="app">
+<div id="app" v-cloak>
     <v-app light>
 
         <v-toolbar dark color="primary">
@@ -6,61 +6,56 @@
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items class="hidden-sm-and-down">
-                <v-btn flat>Entrar <a v-text="lat"></a> <a v-text="lon"></a></v-btn>
+                <v-btn flat>Entrar</v-btn>
             </v-toolbar-items>
         </v-toolbar>
-
 
         <v-content>
             <section>
                 <v-layout
-                        height="600"
-                        column
+                        mt-3
                         align-center
                         justify-center>
 
-                    <v-toolbar
-                            dense
-                            v-bind:style="{width: ($vuetify.breakpoint.smAndDown ? '80%' : '40%'), marginTop:'20px'}"
-                    >
-                        <v-btn icon>
-                            <v-icon>search</v-icon>
-                        </v-btn>
-
+                    <v-flex xs12 sm10 lg8>
                         <v-text-field
-                                hide-details
+                                prepend-inner-icon="search"
                                 single-line
                                 clearable
-                        ></v-text-field>
-
-                        <v-btn icon>
-                            <v-icon>my_location</v-icon>
-                        </v-btn>
-
-                        <v-btn icon>
-                            <v-icon>more_vert</v-icon>
-                        </v-btn>
-                    </v-toolbar>
-
+                                autofocus
+                                solo
+                        />
+                    </v-flex>
                 </v-layout>
             </section>
-
 
             <section>
                 <v-layout
                         column
                         wrap
                         class="my-5"
-                        align-center
-                >
-                    <v-flex xs12 sm4 class="my-3">
+                        align-center>
+
+                    <v-flex xs12 sm4>
+                        <v-progress-circular
+                                v-show="loadingLocation"
+                                size="24"
+                                color="info"
+                                indeterminate
+                        />
+
+                    </v-flex>
+
+                    <v-flex v-show="!loadingLocation" xs12 sm4 class="my-3">
                         <div class="text-xs-center">
-                            <h2 class="headline">The best way to start developing</h2>
+                            <h2 class="headline">{{ "{{localizacao.cidade}}, {{localizacao.uf}}" }}</h2>
                             <span class="subheading">
-                Cras facilisis mi vitae nunc
-              </span>
+                                {{ "{{localizacao.logradouro}}" }}
+                            </span>
                         </div>
                     </v-flex>
+
+
                     <v-flex xs12>
                         <v-container grid-list-xl>
                             <v-layout row wrap align-center>
