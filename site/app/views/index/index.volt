@@ -5,8 +5,18 @@
             <v-toolbar-side-icon></v-toolbar-side-icon>
             <v-toolbar-title v-text="title"></v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items class="hidden-sm-and-down">
-                <v-btn flat>Entrar</v-btn>
+            <v-toolbar-items>
+                <v-menu offset-y>
+                    <v-btn slot="activator" flat>VENDER</v-btn>
+                    <v-list>
+                        <v-list-tile @click="">
+                            <v-list-tile-avatar>
+                                <v-icon color="primary">shopping_basket</v-icon>
+                            </v-list-tile-avatar>
+                            <v-list-tile-title>PRODUTOS</v-list-tile-title>
+                        </v-list-tile>
+                    </v-list>
+                </v-menu>
             </v-toolbar-items>
         </v-toolbar>
 
@@ -19,15 +29,26 @@
 
                     <v-flex xs11 sm10 lg8>
                         <v-text-field
-                                prepend-inner-icon="search"
-                                :append-icon="location ? 'location_on' : 'location_off'"
-                                @click:append="ativarLocalizacao"
-                                :placeholder="'Buscar proximo a '+localizacao.cidade"
+                                v-model="searchText"
+                                :prepend-inner-icon="location ? 'location_on' : 'location_off'"
+                                append-outer-icon="search"
+                                @click:append-outer="search"
+                                :placeholder="loadingLocation ? '':'Buscar próximo a '+localizacao.logradouro+' em '+localizacao.cidade+','+localizacao.uf"
+                                @click:clear="clearSearch"
                                 single-line
                                 clearable
                                 autofocus
                                 solo
-                        />
+                        >
+                            <v-fade-transition slot="append">
+                                <v-progress-circular
+                                        v-if="loadingSearch"
+                                        size="24"
+                                        color="info"
+                                        indeterminate
+                                />
+                            </v-fade-transition>
+                        </v-text-field>
                     </v-flex>
                 </v-layout>
             </section>

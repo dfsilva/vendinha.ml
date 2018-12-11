@@ -7,8 +7,9 @@
                 lat: '',
                 lon: '',
                 location: false,
-                loadingSearch: true,
+                loadingSearch: false,
                 loadingLocation: true,
+                searchText: '',
                 message: {
                     text: '',
                     type: ''
@@ -80,12 +81,14 @@
                 })
             },
             search: function () {
-
-
+                app.loadingSearch = true;
+                console.log('Fazer busca');
             },
 
-            ativarLocalizacao: function () {
-                console.log('ativando localizacao');
+            clearSearch: function () {
+                console.log('Clear Search');
+                app.searchText = '';
+                app.loadingSearch = false;
             }
         }
     })
