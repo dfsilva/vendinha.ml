@@ -50,9 +50,9 @@
 
                     <v-flex v-show="!loadingLocation" xs12 sm4 class="my-3">
                         <div class="text-xs-center">
-                            <h2 class="headline">{{ "{{localizacao.cidade}}, {{localizacao.uf}}" }}</h2>
+                            <h2 class="headline"><?= '{{localizacao.cidade}}, {{localizacao.uf}}' ?></h2>
                             <span class="subheading">
-                                {{ "{{localizacao.logradouro}}" }}
+                                <?= '{{localizacao.logradouro}}' ?>
                             </span>
                         </div>
                     </v-flex>
@@ -136,4 +136,4 @@
     </v-app>
 </div>
 
-{% set templateAfter = 'index/js_after' %}
+<?php $templateAfter = 'index/js_after'; ?>
