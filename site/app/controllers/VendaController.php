@@ -1,6 +1,6 @@
 <?php
 
-class IndexController extends ControllerBase
+class VendaController extends ControllerBase
 {
 
     public function initialize() {
@@ -12,11 +12,10 @@ class IndexController extends ControllerBase
 
     }
 
-    public function testAction()
+    public function produtosAction()
     {
-
+        \Phalcon\Tag::setTitle(' - Venda Produtos facilmente para pessoas que estão próximo a você.');
         $date = new DateTime();
-
         $this->getDI()->get('log')->info('Index Action ');
         $this->view->hello = "hey, hello! " . $date->format('Y-m-d H:i:s');
     }

@@ -72,6 +72,11 @@ class Application extends BaseApplication
                 'action' => 'test'
             ]);
 
+            $router->add('/vender-produtos', [
+                'controller' => 'venda',
+                'action' => 'produtos'
+            ]);
+
             return $router;
         };
 
@@ -93,7 +98,9 @@ class Application extends BaseApplication
                     __DIR__ . '/../app/views'
                 );
 
+                $view->setLayoutsDir(__DIR__ . '/../app/layouts/');
                 $view->setPartialsDir(__DIR__ . '/../app/partials/');
+                $view->setLayout('site');
 
                 $view->registerEngines(
                     [
@@ -141,6 +148,32 @@ class Application extends BaseApplication
                 $logger->setLogLevel(Logger::ERROR);
             }
             return $logger;
+        });
+
+
+
+        $di->set('db', function () {
+
+            $connection = new Connection([
+                "host" => DB_HOST,
+                "username" => DB_USER,
+                "password" => DB_PASSWORD,
+                "dbname" => DB_NAME,
+                "charset" => 'utf8'
+            ]);
+
+            if (APP_DEBUG) {
+                $eventsManager = new Phalcon\Events\Manager();
+                $logger = new FileAdapter(__DIR__ . "/logs/db.log");
+                $eventsManager->attach('db', function ($event, $connection) use ($logger) {
+                    if ($event->getType() == 'beforeQuery') {
+                        $logger->log($connection->getSQLStatement(), \Phalcon\Logger::DEBUG);
+                    }
+                });
+                $connection->setEventsManager($eventsManager);
+            }
+
+            return $connection;
         });
 
 

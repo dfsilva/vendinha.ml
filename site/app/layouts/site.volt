@@ -1,6 +1,20 @@
 {% extends 'templates/base_tpl.volt' %}
 
-{% block title %}Vendinha{% endblock %}
+{% block title %}
+    {{ super() }}
+{% endblock %}
+
+{% block head %}
+    {{ super() }}
+
+    {% if include_head is defined %}
+        {% include(include_head) %}
+    {% else %}
+        {%  include('meta') %}
+    {% endif %}
+
+{% endblock %}
+
 
 {% block content %}
     {{ super() }}
