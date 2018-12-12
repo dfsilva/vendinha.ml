@@ -93,7 +93,7 @@
                 app.loadingSearch = false;
             },
             venderProdutos: function () {
-                location.href = "{{ url('vender-produtos') }}"
+                location.href = "<?= $this->url->get('vender-produtos') ?>"
             }
         }
     })

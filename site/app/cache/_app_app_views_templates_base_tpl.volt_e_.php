@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+a:9:{i:0;s:37:"<!DOCTYPE html>
 <html>
 <head>
-    {% block title %}{{ get_title() }}{% endblock %}
+    ";s:5:"title";a:1:{i:0;a:4:{s:4:"type";i:359;s:4:"expr";a:4:{s:4:"type";i:350;s:4:"name";a:4:{s:4:"type";i:265;s:5:"value";s:9:"get_title";s:4:"file";s:48:"/app/public/../app/views/templates/base_tpl.volt";s:4:"line";i:4;}s:4:"file";s:48:"/app/public/../app/views/templates/base_tpl.volt";s:4:"line";i:4;}s:4:"file";s:48:"/app/public/../app/views/templates/base_tpl.volt";s:4:"line";i:4;}}i:1;s:345:"
     <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 
-    {% block head %}{% endblock %}
+    ";s:4:"head";N;i:2;s:2354:"
 
     <style>
         [v-cloak] {
@@ -31,7 +31,7 @@
                         </v-list-tile-avatar>
 
                         <v-list-tile-content>
-                            <v-list-tile-title>John Leider {{ '{{drawer.open}}' }}</v-list-tile-title>
+                            <v-list-tile-title>John Leider <?= '{{drawer.open}}' ?></v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                 </v-list>
@@ -72,7 +72,7 @@
         </v-toolbar>
 
         <v-content style="margin-top:20px;" class="scroll-y">
-            {% block content %}{% endblock %}
+            ";s:7:"content";N;i:3;s:763:"
         </v-content>
 
         <v-footer
@@ -93,14 +93,14 @@
 </div>
 
 
-{% if constant("APP_ENV") === 'prod' %}
+<?php if (constant('APP_ENV') === 'prod') { ?>
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-{% else %}
+<?php } else { ?>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-{% endif %}
+<?php } ?>
 <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
 
-{% block footer %}{% endblock %}
+";s:6:"footer";N;i:4;s:20:"
 
 </body>
-</html>
+</html>";}
