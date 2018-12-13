@@ -9,9 +9,6 @@
                 location: false,
                 loadingSearch: false,
                 loadingLocation: true,
-                drawer: {
-                    open: false
-                },
                 searchText: '',
                 message: {
                     text: '',
@@ -91,9 +88,6 @@
                 console.log('Clear Search');
                 app.searchText = '';
                 app.loadingSearch = false;
-            },
-            venderProdutos: function () {
-                location.href = "{{ url('vender-produtos') }}"
             }
         }
     })
