@@ -12,9 +12,9 @@ function youTubeGetId(url){
     return undefined !== url[2]?url[2].split(/[^0-9a-z_\-]/i)[0]:url[0];
 }
 
-function initGoogleMaps(){
+function initGoogleMaps(apiKey){
     var tag = document.createElement('script');
-    tag.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBKksWtLW33XnKCGwtyqU9ieQvbj83By0c&callback=initMap";
+    tag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }

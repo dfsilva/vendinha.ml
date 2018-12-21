@@ -44,7 +44,7 @@
         },
         mounted: function () {
             this.getId();
-            initGoogleMaps();
+            initGoogleMaps({{ constant("MAPS_API_KEY") }});
             initYoutube();
 
             if (isDragSupported()) {

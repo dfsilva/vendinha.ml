@@ -33,6 +33,7 @@ class Application extends BaseApplication
         define('FIB_PJ_ID', getenv('FIB_PJ_ID'));
         define('FIB_ST_BUCKET', getenv('FIB_ST_BUCKET'));
         define('FIB_MSG_SENDER_ID', getenv('FIB_MSG_SENDER_ID'));
+        define('MAPS_API_KEY', getenv('MAPS_API_KEY'));
 
         define('API_URL', getenv('API_URL'));
     }
