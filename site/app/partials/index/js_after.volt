@@ -3,7 +3,6 @@
         el: '#app',
         data() {
             return {
-                title: 'Vendinha.ml',
                 lat: '',
                 lon: '',
                 location: false,
@@ -48,6 +47,10 @@
                     });
             },
             preencherLocalizacao: function (lat, lon) {
+
+                saveValue('lat', lat);
+                saveValue('lon', lon);
+
                 var body = {
                     "from": 0, "size": 1,
                     "sort": [
@@ -85,7 +88,6 @@
             },
 
             clearSearch: function () {
-                console.log('Clear Search');
                 app.searchText = '';
                 app.loadingSearch = false;
             }

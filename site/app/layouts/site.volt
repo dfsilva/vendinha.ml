@@ -12,9 +12,7 @@
     {% else %}
         {%  include('meta') %}
     {% endif %}
-
 {% endblock %}
-
 
 {% block content %}
     {{ super() }}
@@ -29,4 +27,5 @@
     {% endif %}
 
     {% include('firebase') %}
+
 {% endblock %}

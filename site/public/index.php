@@ -33,6 +33,8 @@ class Application extends BaseApplication
         define('FIB_PJ_ID', getenv('FIB_PJ_ID'));
         define('FIB_ST_BUCKET', getenv('FIB_ST_BUCKET'));
         define('FIB_MSG_SENDER_ID', getenv('FIB_MSG_SENDER_ID'));
+
+        define('API_URL', getenv('API_URL'));
     }
 
     public function main()
@@ -94,6 +96,12 @@ class Application extends BaseApplication
             function () use ($config) {
                 $view = new View();
 
+//                $eventsManager = new EventsManager();
+//                $eventsManager->attach(
+//                    'view:afterRender',
+//                    new \TidyPlugin()
+//                );
+
                 $view->setViewsDir(
                     __DIR__ . '/../app/views'
                 );
@@ -109,8 +117,9 @@ class Application extends BaseApplication
 
                             $volt->setOptions(
                                 [
-                                    "compiledPath"      => __DIR__.'/../app/cache/',
+                                    "compiledPath" => __DIR__ . '/../app/cache/',
                                     "compiledSeparator" => "_",
+                                    'compileAlways'     => APP_ENV != 'prod' ? true : false
                                 ]
                             );
 
@@ -119,6 +128,9 @@ class Application extends BaseApplication
                         ".phtml" => PhpViewEngine::class
                     ]
                 );
+
+//                $view->setEventsManager($eventsManager);
+
                 return $view;
             },
             true
@@ -151,7 +163,6 @@ class Application extends BaseApplication
         });
 
 
-
         $di->set('db', function () {
 
             $connection = new Connection([
@@ -176,26 +187,53 @@ class Application extends BaseApplication
             return $connection;
         });
 
+        $assetsManager = new Phalcon\Assets\Manager();
+        $assetsManager->collection('jsBase')
+            ->setTargetPath('assets/dist/jsBase.js')
+            ->setTargetUri('assets/dist/jsBase.js')
+            ->addJs('assets/vue-2.5.21/dist/vue.js')
+            ->addJs('assets/vuetify-v1.4.0-beta.0/vuetify-v1.4.0-beta.0.js')
+            ->addJs('assets/js/utils.js')
+            ->join(true)
+            ->addFilter(new Phalcon\Assets\Filters\Jsmin());
 
-//        $assetsManager = new Phalcon\Assets\Manager();
-//        $assetsManager->collection('jsSiteBase')
-//            ->setTargetPath('jsSiteBase.js')
-//            ->setTargetUri('assets/jsSiteBase.js')
-//            ->addJs(APP_ENV == 'prod' ? 'https://cdn.jsdelivr.net/npm/vue' : 'https://cdn.jsdelivr.net/npm/vue/dist/vue.js', false, true)
-//            ->addJs('https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js', false, true)
-//            ->join(true)
-//            ->addFilter(new Phalcon\Assets\Filters\Jsmin());
-//
-//        $di->set('assets', $assetsManager);
+        $assetsManager->collection('dialogAddVideoJs')
+            ->setTargetPath('assets/dist/dialogAddVideoJs.js')
+            ->setTargetUri('assets/dist/dialogAddVideoJs.js')
+            ->addJs('assets/js/vue-comp/DialogAddVideo.js')
+            ->join(true)
+            ->addFilter(new Phalcon\Assets\Filters\Jsmin());
 
+        $assetsManager->collection('youtubeVidJs')
+            ->setTargetPath('assets/dist/youtubeVidJs.js')
+            ->setTargetUri('assets/dist/youtubeVidJs.js')
+            ->addJs('assets/js/vue-comp/YoutubeVid.js')
+            ->join(true)
+            ->addFilter(new Phalcon\Assets\Filters\Jsmin());
 
-//
-//        $eventsManager = new EventsManager;
-//        $eventsManager->attach('dispatch:beforeException', new \NotFoundPlugin);
-//        $dispatcher = new Dispatcher;
-//        $dispatcher->setEventsManager($eventsManager);
-//
-//        $di->setShared('dispatcher', $dispatcher);
+        $assetsManager->collection('vdNavBar')
+            ->setTargetPath('assets/dist/vdNavBar.js')
+            ->setTargetUri('assets/dist/vdNavBar.js')
+            ->addJs('assets/js/vue-comp/VdNavBar.js')
+            ->join(true)
+            ->addFilter(new Phalcon\Assets\Filters\Jsmin());
+
+        $assetsManager->collection('vdMessage')
+            ->setTargetPath('assets/dist/vdMessage.js')
+            ->setTargetUri('assets/dist/vdMessage.js')
+            ->addJs('assets/js/vue-comp/VdMessage.js')
+            ->join(true)
+            ->addFilter(new Phalcon\Assets\Filters\Jsmin());
+
+        $assetsManager->collection('cssBase')
+            ->setTargetPath('assets/dist/cssBase.css')
+            ->setTargetUri('assets/dist/cssBase.css')
+            ->addCss('assets/vuetify-v1.4.0-beta.0/vuetify-v1.4.0-beta.0.css')
+            ->addCss('assets/css/app.css')
+            ->join(true)
+            ->addFilter(new Phalcon\Assets\Filters\Cssmin());
+
+        $di->set('assets', $assetsManager);
 
         $this->setDI($di);
         echo $this->handle()->getContent();
