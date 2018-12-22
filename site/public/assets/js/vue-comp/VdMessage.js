@@ -13,13 +13,13 @@ Vue.component('vd-message', {
         }
     },
     mounted: function () {
-
     },
     methods: {
         showLoadingMessage: function (message) {
             this.snackbar.loading = true;
             this.snackbar.text = message;
             this.snackbar.visible = true;
+            this.snackbar.color = '';
         },
         showErrorMessage: function (message) {
             this.snackbar.loading = false;

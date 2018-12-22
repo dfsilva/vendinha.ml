@@ -1,4 +1,4 @@
-<dialog-add-video ref="dialogAddVideo" v-on:addvideo="adicionarVideo"></dialog-add-video>
+<dialog-add-video ref="dialogAddVideo" v-on:addvideo="addVideo"></dialog-add-video>
 
 <v-stepper v-model="passo" vertical>
     <v-stepper-step step="1" editable>
@@ -49,7 +49,7 @@
     <v-stepper-step step="2" editable>
         <div style="flex-direction:row;">
             Fotos
-            <label>
+            <label v-if="data.id">
                 <v-btn v-if="passo == 2" @click="$refs.image.click()" fab flat small>
                     <v-icon>add</v-icon>
                 </v-btn>
@@ -65,7 +65,7 @@
         <v-layout>
             <v-flex>
                 <div id="dropzone">
-                    <v-card :class="`elevation-${dragOver ? 12 : 2}`">
+                    <v-card :class="`elevation-${dragOver ? 12 : 2}`" v-if="data.id">
                         <v-container grid-list-sm fluid>
                             <v-layout
                                     row
@@ -100,6 +100,20 @@
                                                 </v-progress-circular>
                                             </v-layout>
 
+                                            <div v-if="foto.uploading"
+                                                 class="d-flex justify-center align-content-center align-center"
+                                                 style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: white; opacity: 0.3;">
+                                                <v-progress-circular
+                                                        :rotate="360"
+                                                        :size="100"
+                                                        :width="15"
+                                                        :value="foto.progress"
+                                                        color="primary"
+                                                >
+                                                    {{ '{{ foto.progress }}' }}
+                                                </v-progress-circular>
+                                            </div>
+
                                             <v-btn fab dark small color="primary"
                                                    @click="removerFoto(index)"
                                                    style="position: absolute; right: 5px; top: 5px;">
@@ -109,7 +123,7 @@
                                             <v-switch color="primary"
                                                       v-model="foto.principal"
                                                       style="position: absolute; left:5px; top:0px;"
-                                                        @change="function(value){alterouPrincipal(value,index)}">
+                                                        @change="function(value){mainPictureChanged(value,index)}">
                                                 <div slot="label" class="text--primary">Principal</div>
                                             </v-switch>
                                         </v-img>
@@ -133,6 +147,11 @@
                             </v-layout>
                         </v-container>
                     </v-card>
+                </div>
+                <div v-if="!data.id"
+                     style="left: 0; top: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; flex-direction: column; min-height: 200px;">
+                    Nao foi possivel recuperar um código para esse cadastro.
+                    <v-btn color="primary" @click="getId">Tentar Novamente</v-btn>
                 </div>
             </v-flex>
         </v-layout>
@@ -168,7 +187,7 @@
                                     d-flex
                             >
                                 <v-card flat tile class="d-flex">
-                                    <youtube-vid :video-id="video.id" v-on:error="videoError"></youtube-vid>
+                                    <youtube-vid :video-id="video.id" v-on:error="playVideoError"></youtube-vid>
                                 </v-card>
                             </v-flex>
 
