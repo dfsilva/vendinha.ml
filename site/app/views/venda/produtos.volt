@@ -82,8 +82,8 @@
                                 >
                                     <v-card flat tile class="d-flex">
                                         <v-img
-                                                :src="foto.remoteUrl || foto.url"
-                                                :lazy-src="foto.url"
+                                                :src="fotosBase64[foto.name] || foto.url"
+                                                :lazy-src="fotosBase64[foto.name] || foto.url"
                                                 aspect-ratio="1"
                                                 class="grey lighten-2"
                                         >
@@ -166,6 +166,8 @@
                 <v-icon>add</v-icon>
             </v-btn>
         </div>
+
+        <small>Opcional</small>
     </v-stepper-step>
 
     <v-stepper-content step="3">

@@ -26,6 +26,4 @@
         {% include(templateAfter) %}
     {% endif %}
 
-    {% include('firebase') %}
-
 {% endblock %}

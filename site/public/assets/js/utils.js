@@ -3,16 +3,16 @@ function isDragSupported() {
     return ('draggable' in div) || ('ondragstart' in div && 'ondrop' in div);
 }
 
-function isImage(file){
+function isImage(file) {
     return file.type.match(/image-*/);
 }
 
-function youTubeGetId(url){
+function youTubeGetId(url) {
     url = url.split(/(vi\/|v%3D|v=|\/v\/|youtu\.be\/|\/embed\/)/);
-    return undefined !== url[2]?url[2].split(/[^0-9a-z_\-]/i)[0]:url[0];
+    return undefined !== url[2] ? url[2].split(/[^0-9a-z_\-]/i)[0] : url[0];
 }
 
-function initGoogleMaps(apiKey){
+function initGoogleMaps(apiKey) {
     var tag = document.createElement('script');
     tag.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
     var firstScriptTag = document.getElementsByTagName('script')[0];
@@ -26,20 +26,60 @@ function initYoutube() {
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 }
 
-function saveValue(key, value){
-    if (typeof(Storage) !== "undefined") {
+function saveValue(key, value) {
+    if (typeof (Storage) !== "undefined") {
         window.localStorage.setItem(key, value);
     }
 }
 
-function getValue(key){
-    if (typeof(Storage) !== "undefined") {
+function getValue(key) {
+    if (typeof (Storage) !== "undefined") {
         return window.localStorage.getItem(key);
     }
     return false;
 }
 
 function saveDraft(key, data) {
-    var db = firebase.firestore();
+    firestore.collection('drafts').doc(key)
+        .set(data)
+        .then(function () {
+            saveValue('draft', key);
+        });
+}
 
+function getDraft() {
+    return new Promise(function (resolve, reject) {
+        var draft = getValue('draft');
+        if (draft) {
+            console.log(draft);
+            firestore.collection('drafts').doc(draft).get().then(function (doc) {
+                if (doc.exists) {
+                    resolve(doc.data());
+                } else {
+                    window.localStorage.removeItem('draft');
+                    reject('Rascunho nao existe');
+                }
+            }).catch(function (error) {
+                reject(error);
+            });
+        } else {
+            reject('Nenhum rascunho');
+        }
+    });
+}
+
+function removeDraft() {
+    return new Promise(function (resolve, reject) {
+        var draft = getValue('draft');
+        if (draft) {
+            console.log(draft);
+            firestore.collection('drafts').doc(draft).delete().then(function () {
+                resolve('Rascunho excluído');
+            }).catch(function (error) {
+                reject(error);
+            });
+        } else {
+            reject('Nenhum rascunho para ser excluido');
+        }
+    });
 }

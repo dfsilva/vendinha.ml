@@ -13,4 +13,6 @@
         messagingSenderId: {{ constant("FIB_MSG_SENDER_ID") }}
     };
     firebase.initializeApp(config);
+    var firestore = firebase.firestore();
+    firestore.settings({timestampsInSnapshots: true});
 </script>

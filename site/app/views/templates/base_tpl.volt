@@ -39,6 +39,8 @@
     </v-app>
 </div>
 
+{% include('firebase') %}
+
 {{ assets.outputJs('jsBase') }}
 {{ assets.outputJs('vdNavBar') }}
 {{ assets.outputJs('vdMessage') }}

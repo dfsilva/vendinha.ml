@@ -26,6 +26,7 @@
                         telefone: ''
                     }
                 },
+                fotosBase64: {},
                 sugestaoTags: [],
                 dragOver: false,
                 tituloRules: [
@@ -39,11 +40,20 @@
                 descricaoRules: [
                     v => !!v || 'E-mail is required',
                     v => /.+@.+/.test(v) || 'E-mail must be valid'
-                ]
+                ],
+                tasks: {}
+            }
+        },
+        watch: {
+            passo(val) {
+                console.log('salvando rascunho');
+                saveDraft(`protudo_${app.data.id}`, app.data);
             }
         },
         mounted: function () {
-            this.getId();
+
+            this.carregarRascunho();
+
             initGoogleMaps({{ constant("MAPS_API_KEY") }});
             initYoutube();
 
@@ -64,7 +74,6 @@
                     if (!app.dragOver)
                         app.dragOver = true;
                 });
-
                 document.querySelector("#dropzone").addEventListener("drop", function (e) {
                     e.preventDefault();
                     app.dragOver = false;
@@ -77,8 +86,18 @@
             }
         },
         methods: {
-            getId: function () {
+            carregarRascunho: function () {
                 this.$refs.vdMessage.showLoadingMessage('Carregando...');
+                getDraft()
+                    .then(function (draft) {
+                        app.$refs.vdMessage.hideMessage();
+                        app.data = draft;
+                    })
+                    .catch(function (error) {
+                        app.getId();
+                    })
+            },
+            getId: function () {
                 fetch('{{ constant("API_URL")~"/next-seq" }}')
                     .then(function (response) {
                         return response.json();
@@ -109,7 +128,7 @@
                     this.data.fotos[0].principal = true;
                 }
 
-                if (foto.remoteUrl) {
+                if (foto.url) {
                     var storageRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/${foto.name}`);
                     storageRef.delete().then(function () {
                         var thumbRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/thumb_${foto.name}`);
@@ -117,7 +136,8 @@
                     });
                 } else {
                     if (foto.uploading && foto.uploadTask) {
-                        foto.uploadTask.cancel();
+                        app.tasks[foto.name].cancel();
+                        delete app.tasks[foto.name];
                     }
                 }
             },
@@ -140,33 +160,44 @@
                 }
                 var reader = new FileReader();
                 reader.onloadend = function () {
+
                     var novaFoto = {
-                        file: file,
                         name: file.name,
-                        url: reader.result,
+                        url: '',
                         principal: app.data.fotos.length == 0 ? true : false,
                         uploading: false,
-                        progress: 0,
-                        remoteUrl: ''
+                        progress: 0
                     };
 
                     app.data.fotos = app.data.fotos.concat([novaFoto])
                     app.data.fotosNomes = [file.name].concat(app.data.fotosNomes);
 
+                    app.fotosBase64[novaFoto.name] = reader.result;
+
                     var storageRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/${file.name}`);
-                    novaFoto.uploadTask = storageRef.put(file);
-                    novaFoto.uploadTask.on('state_changed', function (snapshot) {
+
+                    app.tasks[novaFoto.name] = storageRef.put(file);
+
+                    app.tasks[novaFoto.name].on('state_changed', function (snapshot) {
                         novaFoto.uploading = true;
                         novaFoto.progress = parseInt((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
                     }, function (error) {
                         novaFoto.uploading = false;
-                        delete novaFoto.uploadTask;
+                        delete app.tasks[novaFoto.name];
                     }, function () {
                         novaFoto.uploading = false;
-                        novaFoto.uploadTask.snapshot.ref.getDownloadURL().then(function (remoteUrl) {
-                            novaFoto.remoteUrl = remoteUrl;
-                            delete novaFoto.uploadTask;
-                        });
+                        app.tasks[novaFoto.name].snapshot.ref.getDownloadURL()
+                            .then(function (remoteUrl) {
+                                novaFoto.url = remoteUrl;
+                                delete app.tasks[novaFoto.name];
+                            })
+                            .catch(function (error) {
+                                app.tasks[novaFoto.name].snapshot.ref.getDownloadURL()
+                                    .then(function (remoteUrl) {
+                                        novaFoto.url = remoteUrl;
+                                        delete app.tasks[novaFoto.name];
+                                    });
+                            });
                     });
                 }
                 reader.readAsDataURL(file);
