@@ -38,3 +38,8 @@ function getValue(key){
     }
     return false;
 }
+
+function saveDraft(key, data) {
+    var db = firebase.firestore();
+
+}

@@ -99,13 +99,35 @@
                 var file = event.target.files[0];
                 this.uploadPicture(file);
             },
-            removerFoto: function(index){
+            removerFoto: function (index) {
                 var foto = this.data.fotos[index];
-                this.data.fotos = this.data.fotos.splice(index, 1);
-                this.data.fotosNomes = this.data.fotosNomes.splice(index, 1);
-                if(foto.principal && this.data.fotos.length > 0){
+
+                this.data.fotos.splice(index, 1);
+                this.data.fotosNomes.splice(index, 1);
+
+                if (foto.principal && this.data.fotos.length > 0) {
                     this.data.fotos[0].principal = true;
                 }
+
+                if (foto.remoteUrl) {
+                    var storageRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/${foto.name}`);
+                    storageRef.delete().then(function () {
+                        var thumbRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/thumb_${foto.name}`);
+                        thumbRef.delete();
+                    });
+                } else {
+                    if (foto.uploading && foto.uploadTask) {
+                        foto.uploadTask.cancel();
+                    }
+                }
+            },
+            mainPictureChanged(value, index) {
+                app.data.fotos = app.data.fotos.map(function (value, idx) {
+                    if (index !== idx) {
+                        value.principal = false;
+                    }
+                    return value;
+                })
             },
             uploadPicture: function (file) {
                 if (!isImage(file)) {
@@ -117,7 +139,7 @@
                     return;
                 }
                 var reader = new FileReader();
-                reader.onloadend = function (){
+                reader.onloadend = function () {
                     var novaFoto = {
                         file: file,
                         name: file.name,
@@ -127,36 +149,29 @@
                         progress: 0,
                         remoteUrl: ''
                     };
+
                     app.data.fotos = app.data.fotos.concat([novaFoto])
                     app.data.fotosNomes = [file.name].concat(app.data.fotosNomes);
-                    var storageRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/${file.name}`);
-                    var uploadTask = storageRef.put(file);
 
-                    uploadTask.on('state_changed', function(snapshot){
+                    var storageRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/${file.name}`);
+                    novaFoto.uploadTask = storageRef.put(file);
+                    novaFoto.uploadTask.on('state_changed', function (snapshot) {
                         novaFoto.uploading = true;
-                        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        novaFoto.progress = parseInt(progress);
-                        switch (snapshot.state) {
-                            case firebase.storage.TaskState.PAUSED: // or 'paused'
-                                console.log('Upload is paused');
-                                break;
-                            case firebase.storage.TaskState.RUNNING: // or 'running'
-                                console.log('Upload is running');
-                                break;
-                        }
-                    }, function(error) {
+                        novaFoto.progress = parseInt((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    }, function (error) {
                         novaFoto.uploading = false;
-                        app.$refs.vdMessage.showWaningMessage(`Erro ao fazer upload do arquivo ${file.name}`);
-                    }, function() {
+                        delete novaFoto.uploadTask;
+                    }, function () {
                         novaFoto.uploading = false;
-                        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-                            novaFoto.remoteUrl = downloadURL;
+                        novaFoto.uploadTask.snapshot.ref.getDownloadURL().then(function (remoteUrl) {
+                            novaFoto.remoteUrl = remoteUrl;
+                            delete novaFoto.uploadTask;
                         });
                     });
                 }
                 reader.readAsDataURL(file);
             },
-            showAddVideoDialog(){
+            showAddVideoDialog() {
                 this.$refs.dialogAddVideo.show();
             },
             addVideo: function (videoUrl) {
@@ -167,14 +182,6 @@
             },
             playVideoError: function (error) {
                 this.$refs.vdMessage.showErrorMessage("Não foi possível tocar o vídeo.");
-            },
-            mainPictureChanged(value, index){
-                app.data.fotos = app.data.fotos.map(function (value, idx) {
-                    if(index !== idx){
-                        value.principal = false;
-                    }
-                    return value;
-                })
             }
         }
     });
@@ -192,7 +199,6 @@
     }
 
     function onYouTubeIframeAPIReady() {
-        console.log('Youtube esta ok');
     }
 </script>
 

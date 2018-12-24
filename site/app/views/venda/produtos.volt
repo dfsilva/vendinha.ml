@@ -82,7 +82,7 @@
                                 >
                                     <v-card flat tile class="d-flex">
                                         <v-img
-                                                :src="foto.url"
+                                                :src="foto.remoteUrl || foto.url"
                                                 :lazy-src="foto.url"
                                                 aspect-ratio="1"
                                                 class="grey lighten-2"
@@ -102,7 +102,7 @@
 
                                             <div v-if="foto.uploading"
                                                  class="d-flex justify-center align-content-center align-center"
-                                                 style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: white; opacity: 0.3;">
+                                                 style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.5);">
                                                 <v-progress-circular
                                                         :rotate="360"
                                                         :size="100"
@@ -110,7 +110,7 @@
                                                         :value="foto.progress"
                                                         color="primary"
                                                 >
-                                                    {{ '{{ foto.progress }}' }}
+                                                    {{ '{{ foto.progress }}%' }}
                                                 </v-progress-circular>
                                             </div>
 
@@ -123,7 +123,7 @@
                                             <v-switch color="primary"
                                                       v-model="foto.principal"
                                                       style="position: absolute; left:5px; top:0px;"
-                                                        @change="function(value){mainPictureChanged(value,index)}">
+                                                      @change="function(value){mainPictureChanged(value,index)}">
                                                 <div slot="label" class="text--primary">Principal</div>
                                             </v-switch>
                                         </v-img>
