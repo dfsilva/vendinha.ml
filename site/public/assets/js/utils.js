@@ -83,3 +83,99 @@ function removeDraft() {
         }
     });
 }
+
+function getLocalizacao() {
+    return new Promise(function (resolve, reject) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                getAddress(position.coords.latitude, position.coords.longitude)
+                    .then(function (endereco) {
+                        resolve(endereco);
+                    })
+                    .catch(function (error) {
+                        reject(error);
+                    });
+            }, function (error) {
+                getGeoByIp()
+                    .then(function (localizacao) {
+                        getAddress(localizacao.latitude, localizacao.longitude)
+                            .then(function (endereco) {
+                                resolve(endereco);
+                            })
+                            .catch(function (error) {
+                                reject(error);
+                            })
+                    })
+                    .catch(function (error) {
+                        reject(error);
+                    });
+            });
+        } else {
+            getGeoByIp()
+                .then(function (localizacao) {
+                    getAddress(localizacao.latitude, localizacao.longitude)
+                        .then(function (endereco) {
+                            resolve(endereco);
+                        })
+                        .catch(function (error) {
+                            reject(error);
+                        })
+                })
+                .catch(function (error) {
+                    reject(error);
+                });
+        }
+    });
+}
+
+function getGeoByIp() {
+    return new Promise(function (resolve, reject) {
+        fetch('http://api.ipstack.com/189.61.119.231?access_key=7300d36bec0dd947e62162f761292fce')
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (json) {
+                resolve({latitude: json.latitude, longitude: json.longitude});
+            })
+            .catch(function (error) {
+                reject(error);
+            });
+    });
+
+}
+
+function getAddress(lat, lon) {
+    return new Promise(function (resolve, reject) {
+        saveValue('lat', lat);
+        saveValue('lon', lon);
+        var body = {
+            "from": 0, "size": 1,
+            "sort": [
+                {
+                    "_geo_distance": {
+                        "localizacao": {
+                            "lat": lat,
+                            "lon": lon
+                        },
+                        "order": "asc",
+                        "unit": "km",
+                        "distance_type": "plane"
+                    }
+                }
+            ]
+        };
+        fetch('https://search-tiger-strips-4fbdu7i2q6p7uhsxyaecyzqhbu.sa-east-1.es.amazonaws.com/enderecos/_search', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify(body)
+        }).then(function (response) {
+            return response.json();
+        }).then(function (result) {
+            resolve(result.hits.hits[0]._source);
+        }).catch(function (error) {
+            reject(error);
+        });
+    });
+}

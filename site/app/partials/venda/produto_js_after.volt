@@ -45,7 +45,7 @@
                 ],
                 tagsRules: [
                     function (v) {
-                        console.log('altetou a tag',v);
+                        console.log('altetou a tag', v);
                         return v.length >= 2 || 'É necessario informar no mínimo duas TAGS.'
                     }
                 ],
@@ -80,7 +80,10 @@
                 saveDraft(`protudo_${app.data.id}`, app.data);
             },
             'data.localizacao': function (val, oldVal) {
-                console.log('Alterou a localizacao: ', val.lat, val.lng);
+                getAddress(val.lat, val.lng)
+                    .then(function (endereco) {
+                        console.log(endereco);
+                    })
             }
         },
         mounted: function () {
@@ -258,7 +261,7 @@
         var lat = parseFloat(getValue('lat'));
         var lng = parseFloat(getValue('lon'));
 
-        if(lat && lng){
+        if (lat && lng) {
             var localizacao = {lat: lat, lng: lng};
 
             app.data.localizacao = localizacao;
