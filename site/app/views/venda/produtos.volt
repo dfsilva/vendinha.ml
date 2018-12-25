@@ -1,32 +1,37 @@
 <dialog-add-video ref="dialogAddVideo" v-on:addvideo="addVideo"></dialog-add-video>
 
 <v-stepper v-model="passo" vertical>
-    <v-stepper-step step="1" editable>
+    <v-stepper-step step="1"
+                    :rules="[() => passo <= 1 || this.$refs.formInformacoesBasicas.validate()]"
+                    editable
+                    :complete="passo > 1">
         Informações básicas
+        <small v-if="passo > 1 && !this.$refs.formInformacoesBasicas.validate()">Existem problemas a serem corrigidos
+        </small>
     </v-stepper-step>
 
     <v-stepper-content step="1">
-
-        <v-form>
+        <v-form ref="formInformacoesBasicas">
             <v-text-field
                     v-model="data.titulo"
                     :rules="tituloRules"
                     :counter="150"
                     label="Título"
-                    required
+                    hint="Informe um título para o seu produto."
             ></v-text-field>
             <v-textarea
                     v-model="data.descricao"
                     :rules="descricaoRules"
-                    label="Descrição do protudo"
-                    hint="Informe a descrição detalhada do produto"
+                    label="Descrição"
+                    hint="Informe a descrição detalhada do produto."
             ></v-textarea>
 
             <v-combobox
                     v-model="data.tags"
                     :items="sugestaoTags"
                     label="Tags"
-                    hint="Tags para identificar o seu produto"
+                    hint="Digite a tag e pressione Enter para adicionar."
+                    :rules="tagsRules"
                     chips
                     clearable
                     multiple
@@ -42,11 +47,14 @@
             </v-combobox>
         </v-form>
 
-        <v-btn color="primary" @click="passo = 2">Continuar</v-btn>
+        <v-btn color="primary" @click="passo = 2">Próximo</v-btn>
         <v-btn flat @click="cancelarCadastro">Cancelar</v-btn>
     </v-stepper-content>
 
-    <v-stepper-step step="2" editable>
+    <v-stepper-step step="2"
+                    editable
+                    :rules="[() => passo <= 2 || data.fotos.length > 0]"
+                    :complete="passo > 2">
         <div style="flex-direction:row;">
             Fotos
             <label v-if="data.id">
@@ -60,6 +68,7 @@
                        style="display:none;">
             </label>
         </div>
+        <small v-if="passo > 2 && !data.fotos.length">Adicione pelo menos 1 foto.</small>
     </v-stepper-step>
     <v-stepper-content step="2">
         <v-layout>
@@ -114,7 +123,7 @@
                                                 </v-progress-circular>
                                             </div>
 
-                                            <v-btn fab dark small color="primary"
+                                            <v-btn fab dark small color="error"
                                                    @click="removerFoto(index)"
                                                    style="position: absolute; right: 5px; top: 5px;">
                                                 <v-icon dark>remove</v-icon>
@@ -132,7 +141,7 @@
 
                                 <div v-if="!data.fotos.length && !dragOver"
                                      class="align-center align-content-center v-full white--text d-flex justify-center">
-                                    Arraste para adicionar fotos
+                                    Arraste ou pressione + para adicionar fotos
                                 </div>
 
                                 <v-expand-transition>
@@ -141,7 +150,7 @@
                                             class="d-flex transition-fast-in-fast-out orange darken-2 v-card--reveal display-3 white--text"
                                             style="height: 100%;"
                                     >
-                                        SOLTE PARA ADICIONAR FOTOS
+                                        Solte para adicionar as Fotos
                                     </div>
                                 </v-expand-transition>
                             </v-layout>
@@ -155,19 +164,21 @@
                 </div>
             </v-flex>
         </v-layout>
-        <v-btn color="primary" @click="passo = 3">Continuar</v-btn>
+        <v-btn color="primary" @click="passo = 3">Próximo</v-btn>
         <v-btn flat @click="passo = --passo">Cancelar</v-btn>
     </v-stepper-content>
 
-    <v-stepper-step step="3" editable>
+    <v-stepper-step step="3"
+                    editable
+                    :complete="passo > 3">
         <div style="flex-direction:row;">
-            Vídeos
+            Vídeos (
+            <small>Opcional</small>
+            )
             <v-btn v-if="passo == 3" @click="showAddVideoDialog" fab flat small>
                 <v-icon>add</v-icon>
             </v-btn>
         </div>
-
-        <small>Opcional</small>
     </v-stepper-step>
 
     <v-stepper-content step="3">
@@ -190,6 +201,12 @@
                             >
                                 <v-card flat tile class="d-flex">
                                     <youtube-vid :video-id="video.id" v-on:error="playVideoError"></youtube-vid>
+
+                                    <v-btn fab dark small color="error"
+                                           @click="removerVideo(index)"
+                                           style="position: absolute; right: 5px; top: 5px;">
+                                        <v-icon dark>remove</v-icon>
+                                    </v-btn>
                                 </v-card>
                             </v-flex>
 
@@ -204,22 +221,21 @@
             </v-flex>
         </v-layout>
 
-        <v-btn color="primary" @click="passo = 4">Continuar</v-btn>
+        <v-btn color="primary" @click="passo = 4">Próximo</v-btn>
         <v-btn flat @click="passo = --passo">Cancelar</v-btn>
     </v-stepper-content>
 
-    <v-stepper-step step="4" editable>Localização</v-stepper-step>
-
+    <v-stepper-step step="4"
+                    :complete="passo > 4"
+                    editable>Localização
+    </v-stepper-step>
     <v-stepper-content step="4">
         <v-flex>
-            <v-card class="elevation-12">
-                <v-container grid-list-sm fluid>
-                    <div id="map" style="height:400px;width:100%;"></div>
-                </v-container>
-            </v-card>
+            <v-container grid-list-sm fluid>
+                <div id="map" style="height:400px;width:100%;"></div>
+            </v-container>
         </v-flex>
-
-        <v-btn color="primary" @click="passo = 5">Continue</v-btn>
+        <v-btn color="primary" @click="passo = 5">Próximo</v-btn>
         <v-btn flat @click="passo = --passo">Cancel</v-btn>
     </v-stepper-content>
 
@@ -228,30 +244,32 @@
     </v-stepper-step>
 
     <v-stepper-content step="5">
-        <v-form>
+        <v-form ref="formDadosVendedor">
             <v-text-field
-                    v-model="data.nome"
+                    v-model="data.vendedor.nome"
                     :counter="400"
                     label="Nome"
-                    required
+                    :rules="nomeRules"
             ></v-text-field>
 
             <v-text-field
-                    v-model="data.cep"
+                    v-model="data.vendedor.cep"
                     label="CEP"
-                    required
+                    :rules="cepRules"
+                    mask="#####-###"
             ></v-text-field>
 
             <v-text-field
-                    v-model="data.email"
+                    v-model="data.vendedor.email"
                     label="Email"
-                    required
+                    :rules="emailRules"
             ></v-text-field>
 
             <v-text-field
-                    v-model="data.telefone"
+                    v-model="data.vendedor.telefone"
                     label="Telefone"
-                    required
+                    mask="(##) # ####-####"
+                    :rules="telefoneRules"
             ></v-text-field>
 
         </v-form>

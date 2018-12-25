@@ -17,7 +17,7 @@
                     videos: [],
                     localizacao: {
                         lat: null,
-                        lon: null
+                        lng: null
                     },
                     vendedor: {
                         nome: '',
@@ -31,23 +31,56 @@
                 dragOver: false,
                 tituloRules: [
                     function (v) {
-                        return !!v || 'Name is required'
+                        return !!v || 'Título é requerido.'
                     },
                     function (v) {
-                        return v.length <= 10 || 'Name must be less than 10 characters'
+                        return v.length <= 150 || 'O título deve ter menos de 150 caracteres.'
                     }
                 ],
                 descricaoRules: [
-                    v => !!v || 'E-mail is required',
-                    v => /.+@.+/.test(v) || 'E-mail must be valid'
+                    function (v) {
+                        return !!v || 'É necessário informar uma descrição.'
+                    },
+                    //v => /.+@.+/.test(v) || 'E-mail must be valid'
+                ],
+                tagsRules: [
+                    function (v) {
+                        console.log('altetou a tag',v);
+                        return v.length >= 2 || 'É necessario informar no mínimo duas TAGS.'
+                    }
+                ],
+                nomeRules: [
+                    function (v) {
+                        return !!v || 'É necessário informar o nome.'
+                    }
+                ],
+                cepRules: [
+                    function (v) {
+                        return !!v || 'É necessário informar o CEP.'
+                    }
+                ],
+                emailRules: [
+                    function (v) {
+                        return !!v || 'É necessário informar o email.'
+                    },
+                    function (v) {
+                        return /.+@.+/.test(v) || 'Informe um email válido.'
+                    }
+                ],
+                telefoneRules: [
+                    function (v) {
+                        return !!v || 'É necessário informar o telefone.'
+                    }
                 ],
                 tasks: {}
             }
         },
         watch: {
             passo(val) {
-                console.log('salvando rascunho');
                 saveDraft(`protudo_${app.data.id}`, app.data);
+            },
+            'data.localizacao': function (val, oldVal) {
+                console.log('Alterou a localizacao: ', val.lat, val.lng);
             }
         },
         mounted: function () {
@@ -129,13 +162,13 @@
                 }
 
                 if (foto.url) {
-                    var storageRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/${foto.name}`);
+                    var storageRef = firebase.storage().ref().child(`${foto.folderPath}/${foto.name}`);
                     storageRef.delete().then(function () {
-                        var thumbRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/thumb_${foto.name}`);
+                        var thumbRef = firebase.storage().ref().child(`${foto.folderPath}/thumb_${foto.name}`);
                         thumbRef.delete();
                     });
                 } else {
-                    if (foto.uploading && foto.uploadTask) {
+                    if (foto.uploading && app.tasks[foto.name]) {
                         app.tasks[foto.name].cancel();
                         delete app.tasks[foto.name];
                     }
@@ -164,6 +197,7 @@
                     var novaFoto = {
                         name: file.name,
                         url: '',
+                        folderPath: `temp/produtos/pictures/${app.data.id}`,
                         principal: app.data.fotos.length == 0 ? true : false,
                         uploading: false,
                         progress: 0
@@ -174,7 +208,7 @@
 
                     app.fotosBase64[novaFoto.name] = reader.result;
 
-                    var storageRef = firebase.storage().ref().child(`produtos/pictures/${app.data.id}/${file.name}`);
+                    var storageRef = firebase.storage().ref().child(`${novaFoto.folderPath}/${file.name}`);
 
                     app.tasks[novaFoto.name] = storageRef.put(file);
 
@@ -213,20 +247,38 @@
             },
             playVideoError: function (error) {
                 this.$refs.vdMessage.showErrorMessage("Não foi possível tocar o vídeo.");
+            },
+            removerVideo: function (index) {
+                this.data.videos.splice(index, 1);
             }
         }
     });
 
     function initMap() {
         var lat = parseFloat(getValue('lat'));
-        var lon = parseFloat(getValue('lon'));
-        var localizacao = {lat: lat, lng: lon};
+        var lng = parseFloat(getValue('lon'));
 
-        app.map = new google.maps.Map(document.getElementById('map'), {
-            center: localizacao,
-            zoom: 14
-        });
-        app.marcacao = new google.maps.Marker({position: localizacao, map: app.map});
+        if(lat && lng){
+            var localizacao = {lat: lat, lng: lng};
+
+            app.data.localizacao = localizacao;
+            app.map = new google.maps.Map(document.getElementById('map'), {
+                center: localizacao,
+                zoom: 14
+            });
+
+            app.marcacao = new google.maps.Marker({
+                position: localizacao,
+                map: app.map,
+                draggable: true,
+                title: "Arraste para mudar sua localização!"
+            });
+
+            app.marcacao.addListener('dragend', function (event) {
+                var localizacao = {lat: event.latLng.lat(), lng: event.latLng.lng()};
+                app.data.localizacao = localizacao;
+            });
+        }
     }
 
     function onYouTubeIframeAPIReady() {
