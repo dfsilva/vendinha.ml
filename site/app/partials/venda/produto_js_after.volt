@@ -32,6 +32,7 @@
                     },
                 },
                 fotosBase64: {},
+                files: {},
                 sugestaoTags: [],
                 dragOver: false,
                 buscandoEndereco: true,
@@ -96,7 +97,8 @@
                                 bairro: endereco.bairro,
                                 cidade: endereco.cidade,
                                 uf: endereco.uf
-                            }
+                            };
+                            app.map.setCenter(app.data.localizacao);
                         })
                         .catch(function (error) {
                             // app.buscandoEndereco = false;
@@ -134,7 +136,7 @@
                     var files = e.dataTransfer.files;
                     for (var i = 0; i < files.length; i++) {
                         var foto = files[i];
-                        app.uploadPicture(foto);
+                        app.processarArquivoFotoAdicionado(foto);
                     }
                 });
             }
@@ -151,6 +153,7 @@
                         app.getId();
                     })
             },
+
             getId: function () {
                 fetch('{{ constant("API_URL")~"/next-seq" }}')
                     .then(function (response) {
@@ -164,24 +167,26 @@
                         app.$refs.vdMessage.showErrorMessage('Erro ao obter id');
                     })
             },
+
             cancelarCadastro: function () {
                 location.href = "{{ url('') }}"
             },
+
             adicionarFoto: function (event) {
                 event.preventDefault();
-                var file = event.target.files[0];
-                this.uploadPicture(file);
+                console.log(event.target.files);
+                for(var i = 0; i < event.target.files.length; i++){
+                    this.processarArquivoFotoAdicionado(event.target.files[i]);
+                }
             },
+
             removerFoto: function (index) {
                 var foto = this.data.fotos[index];
-
                 this.data.fotos.splice(index, 1);
                 this.data.fotosNomes.splice(index, 1);
-
                 if (foto.principal && this.data.fotos.length > 0) {
                     this.data.fotos[0].principal = true;
                 }
-
                 if (foto.url) {
                     var storageRef = firebase.storage().ref().child(`${foto.folderPath}/${foto.name}`);
                     storageRef.delete().then(function () {
@@ -195,6 +200,7 @@
                     }
                 }
             },
+
             mainPictureChanged(value, index) {
                 app.data.fotos = app.data.fotos.map(function (value, idx) {
                     if (index !== idx) {
@@ -203,18 +209,20 @@
                     return value;
                 })
             },
-            uploadPicture: function (file) {
+
+            processarArquivoFotoAdicionado: function (file) {
                 if (!isImage(file)) {
                     app.$refs.vdMessage.showWaningMessage(`Arquivo ${file.name} não é uma imagem`);
                     return;
                 }
+
                 if (app.data.fotosNomes.indexOf(file.name) > -1) {
                     app.$refs.vdMessage.showWaningMessage(`Arquivo ${file.name} já foi adicionado`);
                     return;
                 }
+
                 var reader = new FileReader();
                 reader.onloadend = function () {
-
                     var novaFoto = {
                         name: file.name,
                         url: '',
@@ -226,38 +234,49 @@
 
                     app.data.fotos = app.data.fotos.concat([novaFoto])
                     app.data.fotosNomes = [file.name].concat(app.data.fotosNomes);
-
                     app.fotosBase64[novaFoto.name] = reader.result;
-
-                    var storageRef = firebase.storage().ref().child(`${novaFoto.folderPath}/${file.name}`);
-
-                    app.tasks[novaFoto.name] = storageRef.put(file);
-
-                    app.tasks[novaFoto.name].on('state_changed', function (snapshot) {
-                        novaFoto.uploading = true;
-                        novaFoto.progress = parseInt((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-                    }, function (error) {
-                        novaFoto.uploading = false;
-                        delete app.tasks[novaFoto.name];
-                    }, function () {
-                        novaFoto.uploading = false;
-                        app.tasks[novaFoto.name].snapshot.ref.getDownloadURL()
-                            .then(function (remoteUrl) {
-                                novaFoto.url = remoteUrl;
-                                delete app.tasks[novaFoto.name];
-                            })
-                            .catch(function (error) {
-                                app.tasks[novaFoto.name].snapshot.ref.getDownloadURL()
-                                    .then(function (remoteUrl) {
-                                        novaFoto.url = remoteUrl;
-                                        delete app.tasks[novaFoto.name];
-                                    });
-                            });
-                    });
+                    app.files[novaFoto.name] = file;
+                    app.uploadPicture(novaFoto);
                 }
+
                 reader.readAsDataURL(file);
             },
-            showAddVideoDialog() {
+            uploadPicture: function (foto) {
+
+                var storageRef = firebase.storage().ref().child(`${foto.folderPath}/${foto.name}`);
+                app.tasks[foto.name] = storageRef.put(app.files[foto.name]);
+
+                app.tasks[foto.name].on('state_changed', function (snapshot) {
+                    foto.uploading = true;
+                    foto.progress = parseInt((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                }, function (error) {
+                    app.$refs.vdMessage.showWaningMessage(`Erro ao enviar a foto`);
+                    foto.uploading = false;
+                    foto.progress = 0;
+                    foto.erro = true;
+                    delete app.tasks[foto.name];
+                }, function () {
+                    foto.uploading = false;
+                    app.tasks[foto.name].snapshot.ref.getDownloadURL()
+                        .then(function (remoteUrl) {
+                            foto.url = remoteUrl;
+                            delete app.tasks[foto.name];
+                        })
+                        .catch(function (error) {
+                            app.tasks[foto.name].snapshot.ref.getDownloadURL()
+                                .then(function (remoteUrl) {
+                                    foto.url = remoteUrl;
+                                    delete app.tasks[foto.name];
+                                });
+                        });
+                });
+            },
+            reenviarFoto: function (index) {
+                var foto = this.data.fotos[index];
+                delete foto.erro;
+                this.uploadPicture(foto);
+            },
+            showAddVideoDialog: function () {
                 this.$refs.dialogAddVideo.show();
             },
             addVideo: function (videoUrl) {
@@ -274,23 +293,30 @@
             },
             getMyLocation: function () {
                 getLocalizacao().then(function (endereco) {
-                    var localizacao = {lat: endereco.localizacao.lat, lng: endereco.localizacao.lon};
-                    app.data.localizacao = localizacao;
+
+                    app.data.localizacao = {
+                        lat: endereco.localizacao.lat,
+                        lng: endereco.localizacao.lon
+                    };
 
                     if (app.marcacao) {
                         app.marcacao.setMap(null);
                     }
 
                     app.marcacao = new google.maps.Marker({
-                        position: localizacao,
+                        position: app.data.localizacao,
                         map: app.map,
                         draggable: true,
                         title: "Arraste para mudar sua localização!"
                     });
 
+                    app.map.setCenter(app.data.localizacao);
+
                     app.marcacao.addListener('dragend', function (event) {
-                        var localizacao = {lat: event.latLng.lat(), lng: event.latLng.lng()};
-                        app.data.localizacao = localizacao;
+                        app.data.localizacao = {
+                            lat: event.latLng.lat(),
+                            lng: event.latLng.lng()
+                        };
                     });
                 })
             },
@@ -305,23 +331,29 @@
         var lng = parseFloat(getValue('lon'));
 
         if (lat && lng) {
-            var localizacao = {lat: lat, lng: lng};
-            app.data.localizacao = localizacao;
+
+            app.data.localizacao = {
+                lat: lat,
+                lng: lng
+            };
+
             app.map = new google.maps.Map(document.getElementById('map'), {
-                center: localizacao,
+                center: app.data.localizacao,
                 zoom: 14
             });
 
             app.marcacao = new google.maps.Marker({
-                position: localizacao,
+                position: app.data.localizacao,
                 map: app.map,
                 draggable: true,
                 title: "Arraste para mudar sua localização!"
             });
 
             app.marcacao.addListener('dragend', function (event) {
-                var localizacao = {lat: event.latLng.lat(), lng: event.latLng.lng()};
-                app.data.localizacao = localizacao;
+                app.data.localizacao = {
+                    lat: event.latLng.lat(),
+                    lng: event.latLng.lng()
+                };
             });
         } else {
             app.getMyLocation();

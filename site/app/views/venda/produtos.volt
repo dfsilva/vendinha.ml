@@ -63,6 +63,7 @@
                 </v-btn>
                 <input type='file'
                        ref="image"
+                       multiple
                        @change="adicionarFoto($event)"
                        accept="image/*"
                        style="display:none;">
@@ -121,6 +122,16 @@
                                                 >
                                                     {{ '{{ foto.progress }}%' }}
                                                 </v-progress-circular>
+                                            </div>
+
+                                            <div v-if="foto.erro"
+                                                 class="d-flex justify-center align-content-center align-center"
+                                                 style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.5);">
+
+                                                <v-btn fab color="primary"
+                                                       @click="reenviarFoto(index)">
+                                                    <v-icon dark>arrow_upward</v-icon>
+                                                </v-btn>
                                             </div>
 
                                             <v-btn fab dark small color="error"
