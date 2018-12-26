@@ -40,7 +40,7 @@
                     <v-chip
                             :selected="data.selected"
                             close
-                            @input="remove(data.item)">
+                            @input="removerTags(data.item)">
                         <strong>{{ '{{ data.item }}' }}</strong>
                     </v-chip>
                 </template>
@@ -227,14 +227,48 @@
 
     <v-stepper-step step="4"
                     :complete="passo > 4"
-                    editable>Localização
+                    editable>
+        <div style="flex-direction:row;">
+            Localização
+            <v-btn v-if="passo == 4" @click="getMyLocation" fab flat small>
+                <v-icon>my_location</v-icon>
+            </v-btn>
+        </div>
     </v-stepper-step>
     <v-stepper-content step="4">
-        <v-flex>
-            <v-container grid-list-sm fluid>
+        <v-layout>
+            <v-container fluid>
                 <div id="map" style="height:400px;width:100%;"></div>
+                <v-form ref="formEndereco">
+                    <v-text-field
+                            v-model="data.endereco.cep"
+                            label="CEP"
+                            :rules="cepRules"
+                            mask="#####-###"
+                    ></v-text-field>
+
+                    <v-text-field
+                            v-model="data.endereco.logradouro"
+                            label="Rua"
+                    ></v-text-field>
+
+                    <v-text-field
+                            v-model="data.endereco.bairro"
+                            label="Bairro"
+                    ></v-text-field>
+
+                    <v-text-field
+                            v-model="data.endereco.cidade"
+                            label="Cidade"
+                    ></v-text-field>
+
+                    <v-text-field
+                            v-model="data.endereco.uf"
+                            label="UF"
+                    ></v-text-field>
+                </v-form>
             </v-container>
-        </v-flex>
+        </v-layout>
         <v-btn color="primary" @click="passo = 5">Próximo</v-btn>
         <v-btn flat @click="passo = --passo">Cancel</v-btn>
     </v-stepper-content>
@@ -250,13 +284,6 @@
                     :counter="400"
                     label="Nome"
                     :rules="nomeRules"
-            ></v-text-field>
-
-            <v-text-field
-                    v-model="data.vendedor.cep"
-                    label="CEP"
-                    :rules="cepRules"
-                    mask="#####-###"
             ></v-text-field>
 
             <v-text-field

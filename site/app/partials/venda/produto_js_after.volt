@@ -19,16 +19,22 @@
                         lat: null,
                         lng: null
                     },
-                    vendedor: {
-                        nome: '',
+                    endereco: {
                         cep: '',
+                        logradouro: '',
+                        bairro: '',
+                        cidade: '',
+                        uf: ''
+                    }, vendedor: {
+                        nome: '',
                         email: '',
                         telefone: ''
-                    }
+                    },
                 },
                 fotosBase64: {},
                 sugestaoTags: [],
                 dragOver: false,
+                buscandoEndereco: true,
                 tituloRules: [
                     function (v) {
                         return !!v || 'Título é requerido.'
@@ -45,7 +51,6 @@
                 ],
                 tagsRules: [
                     function (v) {
-                        console.log('altetou a tag', v);
                         return v.length >= 2 || 'É necessario informar no mínimo duas TAGS.'
                     }
                 ],
@@ -80,10 +85,23 @@
                 saveDraft(`protudo_${app.data.id}`, app.data);
             },
             'data.localizacao': function (val, oldVal) {
-                getAddress(val.lat, val.lng)
-                    .then(function (endereco) {
-                        console.log(endereco);
-                    })
+                if (val.lat && val.lng) {
+                    app.buscandoEndereco = true;
+                    getAddress(val.lat, val.lng)
+                        .then(function (endereco) {
+                            // app.buscandoEndereco = false;
+                            app.data.endereco = {
+                                cep: endereco.cep,
+                                logradouro: endereco.logradouro,
+                                bairro: endereco.bairro,
+                                cidade: endereco.cidade,
+                                uf: endereco.uf
+                            }
+                        })
+                        .catch(function (error) {
+                            // app.buscandoEndereco = false;
+                        })
+                }
             }
         },
         mounted: function () {
@@ -253,6 +271,31 @@
             },
             removerVideo: function (index) {
                 this.data.videos.splice(index, 1);
+            },
+            getMyLocation: function () {
+                getLocalizacao().then(function (endereco) {
+                    var localizacao = {lat: endereco.localizacao.lat, lng: endereco.localizacao.lon};
+                    app.data.localizacao = localizacao;
+
+                    if (app.marcacao) {
+                        app.marcacao.setMap(null);
+                    }
+
+                    app.marcacao = new google.maps.Marker({
+                        position: localizacao,
+                        map: app.map,
+                        draggable: true,
+                        title: "Arraste para mudar sua localização!"
+                    });
+
+                    app.marcacao.addListener('dragend', function (event) {
+                        var localizacao = {lat: event.latLng.lat(), lng: event.latLng.lng()};
+                        app.data.localizacao = localizacao;
+                    });
+                })
+            },
+            removerTags: function (item) {
+                this.data.tags.splice(this.data.tags.indexOf(item), 1);
             }
         }
     });
@@ -263,7 +306,6 @@
 
         if (lat && lng) {
             var localizacao = {lat: lat, lng: lng};
-
             app.data.localizacao = localizacao;
             app.map = new google.maps.Map(document.getElementById('map'), {
                 center: localizacao,
@@ -281,6 +323,8 @@
                 var localizacao = {lat: event.latLng.lat(), lng: event.latLng.lng()};
                 app.data.localizacao = localizacao;
             });
+        } else {
+            app.getMyLocation();
         }
     }
 
